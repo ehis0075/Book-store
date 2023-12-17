@@ -12,8 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 
 @Slf4j
 @Service
@@ -34,7 +32,9 @@ public class CustomerServiceImpl implements CustomerService {
         ShoppingCart savedShoppingCart = shoppingCartService.save(shoppingCart);
 
         Customer customer = new Customer();
-        customer.setName(request.getName());
+        customer.setFirstName(request.getFirstName());
+        customer.setLastName(request.getLastName());
+        customer.setEmail(request.getEmail());
         customer.setShoppingCart(savedShoppingCart);
 
         Customer savedCustomer = customerRepository.save(customer);
@@ -50,7 +50,9 @@ public class CustomerServiceImpl implements CustomerService {
 
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setId(savedCustomer.getId());
-        customerDTO.setName(savedCustomer.getName());
+        customerDTO.setFirstName(savedCustomer.getFirstName());
+        customerDTO.setLastName(savedCustomer.getLastName());
+        customerDTO.setEmail(savedCustomer.getEmail());
         customerDTO.setShoppingCartDTO(shoppingCartDTO);
 
         return customerDTO;

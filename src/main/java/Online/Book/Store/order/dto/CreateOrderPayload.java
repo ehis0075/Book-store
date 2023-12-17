@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 public class CreateOrderPayload {
 
-    private String customerName;
+    private String customerEmail;
 
     private String billingAddress;
 

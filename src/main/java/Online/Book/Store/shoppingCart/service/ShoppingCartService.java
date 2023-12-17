@@ -1,6 +1,6 @@
 package Online.Book.Store.shoppingCart.service;
 
-import Online.Book.Store.book.model.Book;
+import Online.Book.Store.order.model.OrderLine;
 import Online.Book.Store.shoppingCart.dto.request.CreatShoppingCartDTO;
 import Online.Book.Store.shoppingCart.dto.response.ShoppingCartDTO;
 import Online.Book.Store.shoppingCart.model.ShoppingCart;
@@ -15,7 +15,7 @@ public interface ShoppingCartService {
 
     ShoppingCartDTO removeFromCart(CreatShoppingCartDTO request);
 
-    List<Book> getAllItems(String customerName);
+    List<OrderLine> getAllItems(String customerEmail);
 
     ShoppingCart save(ShoppingCart shoppingCart);
 

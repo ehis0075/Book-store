@@ -5,5 +5,7 @@ import lombok.Data;
 @Data
 public class CreateCustomerPayload {
 
-    private String name;
+    private String firstName;
+    private String lastName;
+    private String email;
 }

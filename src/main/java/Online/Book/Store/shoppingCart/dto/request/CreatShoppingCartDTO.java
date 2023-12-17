@@ -8,5 +8,7 @@ public class CreatShoppingCartDTO {
 
     private String bookTitle;
 
-    private String customerName;
+    private String customerEmail;
+
+    private int qty;
 }

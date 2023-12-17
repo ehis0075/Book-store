@@ -31,6 +31,4 @@ public class Customer {
     @OneToOne
     private ShoppingCart shoppingCart;
 
-    public Customer(String s, ShoppingCart shoppingCart) {
-    }
 }

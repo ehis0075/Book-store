@@ -1,6 +1,6 @@
 package Online.Book.Store.shoppingCart.dto.response;
 
-import Online.Book.Store.book.model.Book;
+import Online.Book.Store.order.dto.OrderLineDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -8,5 +8,5 @@ import java.util.List;
 @Data
 public class ShoppingCartDTO {
 
-    private List<Book> bookList;
+    private List<OrderLineDTO> orderLineDTOS;
 }

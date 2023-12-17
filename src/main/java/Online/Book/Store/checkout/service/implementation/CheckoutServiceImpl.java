@@ -2,13 +2,16 @@ package Online.Book.Store.checkout.service.implementation;
 
 import Online.Book.Store.book.model.Book;
 import Online.Book.Store.book.service.BookService;
-import Online.Book.Store.order.dto.CreateOrderPayload;
-import Online.Book.Store.order.dto.OrderDTO;
-import Online.Book.Store.order.service.OrderService;
-import Online.Book.Store.payment.dto.PaymentRequestPayload;
 import Online.Book.Store.checkout.service.CheckoutService;
 import Online.Book.Store.customer.model.Customer;
 import Online.Book.Store.customer.repository.CustomerRepository;
+import Online.Book.Store.exception.GeneralException;
+import Online.Book.Store.general.enums.ResponseCodeAndMessage;
+import Online.Book.Store.order.dto.CreateOrderPayload;
+import Online.Book.Store.order.dto.OrderDTO;
+import Online.Book.Store.order.model.OrderLine;
+import Online.Book.Store.order.service.OrderService;
+import Online.Book.Store.payment.dto.PaymentRequestPayload;
 import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
 import Online.Book.Store.payment.enums.PAYMENTSTATUS;
 import Online.Book.Store.payment.model.PaymentTransaction;
@@ -46,13 +49,13 @@ public class CheckoutServiceImpl implements CheckoutService {
         log.info("Request to check out {}", request);
 
         // get customer
-        Customer customer = customerRepository.findByName(request.getCustomerName());
+        Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
 
         //get BookList
-        List<Book> bookList = customer.getShoppingCart().getBookList();
+        List<OrderLine> orderLineList = customer.getShoppingCart().getOrderLineList();
 
         // validate books
-        bookService.validateBook(bookList);
+        bookService.validateBook(orderLineList);
 
         // Create an order record in the database with information like customer ID, order date, total cost, payment details, and status.
         OrderDTO orderDTO = orderService.createOrder(orderPayload);
@@ -62,25 +65,25 @@ public class CheckoutServiceImpl implements CheckoutService {
 
         PaymentTransactionResponseDTO paymentTransactionResponseDTO = null;
 
-        try{
+        try {
 
             // Process payment
             PaymentTransactionResponseDTO paymentTransactionResponse = makePayment(request);
 
-            if(paymentTransactionResponse.getPaymentStatus().equals("SUCCESSFUL")){
+            if (paymentTransactionResponse.getPaymentStatus().equals("SUCCESSFUL")) {
 
                 //update payment
                 paymentTransactionResponseDTO = paymentTransactionService.updatePayment(paymentTransactionResponse.getPaymentReferenceNumber());
 
 
                 //deduct stock : Update the book's stock count in the database by subtracting the ordered quantity.
-                deductBookStock();
+                deductBookStock(orderLineList);
 
                 //clear shopping cart
                 shoppingCartService.clearShoppingCart(customer.getShoppingCart().getId());
             }
 
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
 
         }
@@ -89,11 +92,26 @@ public class CheckoutServiceImpl implements CheckoutService {
         return paymentTransactionResponseDTO;
     }
 
-    public void deductBookStock(List<Book> bookList, int qty) {
+    public void deductBookStock(List<OrderLine> orderLineList) {
         log.info("Deducting stock for ordered books");
-        for (Book book : bookList) {
-            bookService.deductBookStock(book, qty);
+
+        for (OrderLine orderLine : orderLineList) {
+            Book book = orderLine.getBook();
+            int quantity = orderLine.getQuantity();
+            deductStock(book, quantity);
         }
+    }
+
+    private void deductStock(Book book, int quantity) {
+        int currentStock = book.getStockCount();
+        if (currentStock < quantity) {
+            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Insufficient stock for book: " + book.getTitle());
+        }
+
+        book.setStockCount(currentStock - quantity);
+
+        // update the book in the database
+        bookService.saveBook(book);
     }
 
     public PaymentTransactionResponseDTO makePayment(PaymentRequestPayload request) {
@@ -136,13 +154,13 @@ public class CheckoutServiceImpl implements CheckoutService {
 
         // Simulate transfer checkout
         Date transactionDate = new Date();
-        String referenceNumber = request.getCustomerName() + GeneralUtil.generateUniqueReferenceNumber(transactionDate);
+        String referenceNumber = request.getCustomerEmail() + GeneralUtil.generateUniqueReferenceNumber(transactionDate);
 
         PaymentTransaction paymentTransaction = new PaymentTransaction();
         paymentTransaction.setPaymentReferenceNumber(referenceNumber);
         paymentTransaction.setTransactionDate(transactionDate);
-        paymentTransaction.setAmount(request.getAmount());
-        paymentTransaction.setCustomerName(request.getCustomerName());
+//        paymentTransaction.setAmount(request.getAmount());
+        paymentTransaction.setCustomerName(request.getCustomerEmail());
         paymentTransaction.setPaymentStatus(PAYMENTSTATUS.SUCCESSFUL);
 
         PaymentTransaction savedPaymentTransaction = paymentTransactionRepository.save(paymentTransaction);

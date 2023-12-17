@@ -2,22 +2,13 @@ package Online.Book.Store.order.service.implementation;
 
 import Online.Book.Store.book.model.Book;
 import Online.Book.Store.book.repository.BookRepository;
-import Online.Book.Store.book.service.BookService;
-import Online.Book.Store.customer.model.Customer;
-import Online.Book.Store.customer.repository.CustomerRepository;
 import Online.Book.Store.exception.GeneralException;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.order.dto.CreateOrderLinePayload;
-import Online.Book.Store.order.dto.CreateOrderPayload;
-import Online.Book.Store.order.dto.OrderDTO;
 import Online.Book.Store.order.dto.OrderLineDTO;
-import Online.Book.Store.order.enums.ORDERSTATUS;
-import Online.Book.Store.order.model.Order;
 import Online.Book.Store.order.model.OrderLine;
 import Online.Book.Store.order.repository.OrderLineRepository;
-import Online.Book.Store.order.repository.OrderRepository;
 import Online.Book.Store.order.service.OrderLineService;
-import Online.Book.Store.order.service.OrderService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -34,20 +25,31 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     private final OrderLineRepository orderLineRepository;
 
-    private final BookService bookService;
+    private final BookRepository bookRepository;
 
     @Override
-    public OrderLineDTO createOrderLine(CreateOrderLinePayload request) {
-        log.info("Request to create order line{}", request);
+    public OrderLine createOrderLine(CreateOrderLinePayload request) {
+        log.info("Request to create order line {}", request);
 
-        Book book = bookService.validateBook(request.getBookId());
+        Book book = bookRepository.findById(request.getBookId())
+                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
 
         OrderLine orderLine = new OrderLine();
         orderLine.setQuantity(request.getQty());
         orderLine.setBook(book);
 
-        orderLineRepository.save(orderLine);
+        orderLine = orderLineRepository.save(orderLine);
+
+        return orderLine;
     }
+
+    @Override
+    public OrderLine findByBookTitle(String bookTitle) {
+        log.info("Request to get order line with {}", bookTitle);
+
+        return orderLineRepository.findByBook_Title(bookTitle);
+    }
+
 
     public void addOrderLine(Book book, int quantity) {
 
@@ -74,11 +76,11 @@ public class OrderLineServiceImpl implements OrderLineService {
         throw new RuntimeException("OrderLine not found for book: " + book.getTitle());
     }
 
-    private OrderDTO getOrderDTO(Order order) {
+    private OrderLineDTO getOrderDTO(OrderLine orderLine) {
 
-        OrderDTO orderDTO = new OrderDTO();
-        BeanUtils.copyProperties(order, orderDTO);
+        OrderLineDTO orderLineDTO = new OrderLineDTO();
+        BeanUtils.copyProperties(orderLine, orderLineDTO);
 
-        return orderDTO;
+        return orderLineDTO;
     }
 }

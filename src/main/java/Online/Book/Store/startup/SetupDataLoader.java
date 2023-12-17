@@ -86,7 +86,9 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         shoppingCartRepository.save(shoppingCart);
 
         Customer customer = new Customer();
-        customer.setName("Ola");
+        customer.setFirstName("Ola");
+        customer.setLastName("Paul");
+        customer.setEmail("olapaul@gmail.com");
         customer.setShoppingCart(shoppingCart);
 
         // Save the customers to the database

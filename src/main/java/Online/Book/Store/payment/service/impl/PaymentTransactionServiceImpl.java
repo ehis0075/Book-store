@@ -29,13 +29,13 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 
         // Simulate transfer checkout
         Date transactionDate = new Date();
-        String referenceNumber = request.getCustomerName() + GeneralUtil.generateUniqueReferenceNumber(transactionDate);
+        String referenceNumber = request.getCustomerEmail() + GeneralUtil.generateUniqueReferenceNumber(transactionDate);
 
         PaymentTransaction paymentTransaction = new PaymentTransaction();
         paymentTransaction.setPaymentReferenceNumber(referenceNumber);
         paymentTransaction.setTransactionDate(transactionDate);
         paymentTransaction.setAmount(request.getAmount());
-        paymentTransaction.setCustomerName(request.getCustomerName());
+        paymentTransaction.setCustomerName(request.getCustomerEmail());
         paymentTransaction.setPaymentStatus(PAYMENTSTATUS.PENDING);
         paymentTransaction.setPaymentMethod(request.getPaymentmethod());
 

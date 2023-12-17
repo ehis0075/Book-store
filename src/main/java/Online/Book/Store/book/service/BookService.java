@@ -4,6 +4,7 @@ import Online.Book.Store.book.dto.request.CreateUpdateBookRequest;
 import Online.Book.Store.book.dto.response.BookDTO;
 import Online.Book.Store.book.dto.response.BookListDTO;
 import Online.Book.Store.book.model.Book;
+import Online.Book.Store.order.model.OrderLine;
 
 import java.util.List;
 
@@ -13,11 +14,15 @@ public interface BookService {
 
     void deductBookStock(Book book, int quantity);
 
+    void saveBook(Book book);
+
     BookDTO getBookDTO(Book book);
 
-    void validateBook(List<Book> books);
+    void validateBook(List<OrderLine> books);
 
-    Book validateBook(Long bookId);
+    Book validateBookById(Long bookId);
+
+    Book findBookByTitle(String bookTitle);
 
     BookListDTO searchBookList(String query, int pageNumber, int pageSize);
 }

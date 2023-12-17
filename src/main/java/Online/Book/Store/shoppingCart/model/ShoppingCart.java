@@ -1,6 +1,6 @@
 package Online.Book.Store.shoppingCart.model;
 
-import Online.Book.Store.book.model.Book;
+import Online.Book.Store.order.model.OrderLine;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,14 +15,14 @@ public class ShoppingCart {
     private Long id;
 
     @OneToMany
-    private List<Book> bookList;
+    private List<OrderLine> orderLineList;
 
-    public void removeBook(Book book) {
-        bookList.remove(book);
+    public void remove(OrderLine orderLine) {
+        orderLineList.remove(orderLine);
     }
 
-    public void addBook(Book book) {
-        bookList.add(book);
+    public void add(OrderLine orderLine) {
+        orderLineList.add(orderLine);
     }
 
 }

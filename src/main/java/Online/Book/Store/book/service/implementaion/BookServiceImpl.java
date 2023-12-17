@@ -80,6 +80,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public void saveBook(Book book) {
+
+        // Save updated book information
+        bookRepository.save(book);
+    }
+
+    @Override
     public BookDTO getBookDTO(Book book) {
 
         BookDTO bookDTO = new BookDTO();
@@ -112,10 +119,10 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void validateBook(List<Book> books) {
+    public void validateBook(List<OrderLine> books) {
 
         List<Long> bookIds = books.stream()
-                .map(Book::getId)
+                .map(OrderLine::getId)
                 .collect(Collectors.toList());
 
         List<Book> bookList = bookRepository.findAllById(bookIds);
@@ -126,10 +133,22 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book validateBook(Long bookId){
+    public Book validateBookById(Long bookId) {
 
         return bookRepository.findById(bookId)
                 .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
+    }
+
+    @Override
+    public Book findBookByTitle(String bookTitle) {
+        log.info("Request to get a book with title {}", bookTitle);
+
+        Book book = bookRepository.findByTitle(bookTitle);
+
+        if (Objects.isNull(book)) {
+            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given title");
+        }
+        return book;
     }
 
     @Override

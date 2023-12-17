@@ -3,7 +3,8 @@ package Online.Book.Store.order.service.implementation;
 import Online.Book.Store.book.model.Book;
 import Online.Book.Store.customer.model.Customer;
 import Online.Book.Store.customer.repository.CustomerRepository;
-import Online.Book.Store.order.dto.CreateOrderLinePayload;
+import Online.Book.Store.exception.GeneralException;
+import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.order.dto.CreateOrderPayload;
 import Online.Book.Store.order.dto.OrderDTO;
 import Online.Book.Store.order.enums.ORDERSTATUS;
@@ -18,7 +19,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -39,37 +39,17 @@ public class OrderServiceImpl implements OrderService {
         log.info("Request to create order {}", request);
 
         // get customer
-        Customer customer = customerRepository.findByName(request.getCustomerName());
+        Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
 
         //get book List
-        List<Book> bookList = customer.getShoppingCart().getBookList();
+        List<OrderLine> orderLineList = customer.getShoppingCart().getOrderLineList();
 
         // get total price for all books
-        BigDecimal totalPrice = calculateTotalPrice(bookList);
-
-        int bookQty;
-        //get qty for book
-        for (Book book : bookList) {
-            bookQty = getQuantityForBook(book, );
-        }
-
-        //
-        List<OrderLine> orderLineList = null;
-
-
-        //create order line
-        for(Book book: bookList){
-            OrderLine orderLine = new OrderLine();
-            orderLine.setQuantity(request.getQty());
-            orderLine.setBook(book);
-
-            orderLineList = new ArrayList<>();
-            orderLineList.add(orderLine);
-        }
+        BigDecimal totalPrice = calculateTotalPrice(orderLineList);
 
         Order order = new Order();
         order.setCustomer(customer);
-        order.setOrderLine(orderLineList);
+        order.setOrderLineList(orderLineList);
         order.setBillingAddress(request.getBillingAddress());
         order.setPhoneNumber(request.getPhoneNumber());
         order.setOrderstatus(ORDERSTATUS.PROCESSING);
@@ -88,14 +68,20 @@ public class OrderServiceImpl implements OrderService {
                 return orderLine.getQuantity(); // Return quantity from OrderLine
             }
         }
-        // If no OrderLine found for this book, throw an exception or log an error
-        throw new RuntimeException("OrderLine not found for book: " + book.getTitle());
+        // If no OrderLine found for this book, throw exception
+        throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "OrderLine not found for book: " + book.getTitle());
     }
 
-    public BigDecimal calculateTotalPrice(List<Book> bookList) {
-        return bookList.stream()
-                .map(Book::getPrice) // Assuming you have a getPrice() method in your Book class
+    public BigDecimal calculateTotalPrice(List<OrderLine> orderLineList) {
+        return orderLineList.stream()
+                .map(this::calculateOrderLineTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calculateOrderLineTotalPrice(OrderLine orderLine) {
+        int quantity = orderLine.getQuantity();
+        BigDecimal pricePerUnit = orderLine.getBook().getPrice();
+        return pricePerUnit.multiply(BigDecimal.valueOf(quantity));
     }
 
     private OrderDTO getOrderDTO(Order order) {
