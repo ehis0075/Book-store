@@ -2,12 +2,15 @@ package Online.Book.Store.order.model;
 
 import Online.Book.Store.checkout.enums.PAYMENTMETHOD;
 import Online.Book.Store.customer.model.Customer;
+import Online.Book.Store.order.enums.ORDERSTATUS;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,9 +30,18 @@ public class Order {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    private BigDecimal totalAmount;
+    @OneToMany
+    private List<OrderLine> orderLineList;
+
+    private BigDecimal totalCost; //
 
     @Enumerated(EnumType.STRING)
-    private PAYMENTMETHOD paymentmethod;
+    private PAYMENTMETHOD paymentmethod; //
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date orderDate;
+
+    @Enumerated(EnumType.STRING)
+    private ORDERSTATUS orderstatus;
 
 }

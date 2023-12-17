@@ -67,7 +67,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             book.setTitle("Book " + i);
             book.setAuthor("Author " + i);
             book.setGenre(GeneralUtil.getRandomGenre());  // Use a method to get a random genre
-            book.setAmount(GeneralUtil.generateRandomAmount());  // Use a method to generate a random amount
+            book.setPrice(GeneralUtil.generateRandomAmount());  // Use a method to generate a random amount
             book.setIsbnCode(GeneralUtil.generateUniqueISBNNumber());
             book.setPublicationYear(GeneralUtil.generateRandomYear());  // Use a method to generate a random year
 

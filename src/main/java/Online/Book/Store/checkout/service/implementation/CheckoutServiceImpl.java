@@ -1,5 +1,10 @@
 package Online.Book.Store.checkout.service.implementation;
 
+import Online.Book.Store.book.model.Book;
+import Online.Book.Store.book.service.BookService;
+import Online.Book.Store.order.dto.CreateOrderPayload;
+import Online.Book.Store.order.dto.OrderDTO;
+import Online.Book.Store.order.service.OrderService;
 import Online.Book.Store.payment.dto.PaymentRequestPayload;
 import Online.Book.Store.checkout.service.CheckoutService;
 import Online.Book.Store.customer.model.Customer;
@@ -16,12 +21,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class CheckoutServiceImpl implements CheckoutService {
+
+    private final BookService bookService;
 
     private final ShoppingCartService shoppingCartService;
 
@@ -31,26 +39,61 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     private final PaymentTransactionService paymentTransactionService;
 
+    private final OrderService orderService;
+
     @Override
-    public PaymentTransactionResponseDTO processOrder(PaymentRequestPayload request) {
+    public PaymentTransactionResponseDTO processOrder(PaymentRequestPayload request, CreateOrderPayload orderPayload) {
         log.info("Request to check out {}", request);
-
-        //initiate payment
-        PaymentTransactionResponseDTO paymentPayload = paymentTransactionService.initPayment(request);
-
-        // make payment
-        PaymentTransactionResponseDTO paymentTransactionResponse = makePayment(request);
-
-        //update payment
-        PaymentTransactionResponseDTO paymentTransactionResponseDTO = paymentTransactionService.updatePayment(paymentTransactionResponse.getPaymentReferenceNumber());
 
         // get customer
         Customer customer = customerRepository.findByName(request.getCustomerName());
 
-        //clear shopping cart
-        shoppingCartService.clearShoppingCart(customer.getShoppingCart().getId());
+        //get BookList
+        List<Book> bookList = customer.getShoppingCart().getBookList();
 
+        // validate books
+        bookService.validateBook(bookList);
+
+        // Create an order record in the database with information like customer ID, order date, total cost, payment details, and status.
+        OrderDTO orderDTO = orderService.createOrder(orderPayload);
+
+        //initiate payment
+        PaymentTransactionResponseDTO paymentPayload = paymentTransactionService.initPayment(request);
+
+        PaymentTransactionResponseDTO paymentTransactionResponseDTO = null;
+
+        try{
+
+            // Process payment
+            PaymentTransactionResponseDTO paymentTransactionResponse = makePayment(request);
+
+            if(paymentTransactionResponse.getPaymentStatus().equals("SUCCESSFUL")){
+
+                //update payment
+                paymentTransactionResponseDTO = paymentTransactionService.updatePayment(paymentTransactionResponse.getPaymentReferenceNumber());
+
+
+                //deduct stock : Update the book's stock count in the database by subtracting the ordered quantity.
+                deductBookStock();
+
+                //clear shopping cart
+                shoppingCartService.clearShoppingCart(customer.getShoppingCart().getId());
+            }
+
+        } catch (Exception e){
+            log.error(e.getMessage());
+
+        }
+
+        // get payment trnx response
         return paymentTransactionResponseDTO;
+    }
+
+    public void deductBookStock(List<Book> bookList, int qty) {
+        log.info("Deducting stock for ordered books");
+        for (Book book : bookList) {
+            bookService.deductBookStock(book, qty);
+        }
     }
 
     public PaymentTransactionResponseDTO makePayment(PaymentRequestPayload request) {

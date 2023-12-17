@@ -29,8 +29,9 @@ public class Book {
 
     private String publicationYear;
 
-    private BigDecimal amount;
+    private BigDecimal price;
 
+    private int stockCount;
 
     public Book(String s, GENRE genre, String number, String s1, String number1, BigDecimal bigDecimal) {
     }

@@ -10,6 +10,7 @@ import Online.Book.Store.book.repository.BookRepository;
 import Online.Book.Store.book.service.BookService;
 import Online.Book.Store.exception.GeneralException;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
+import Online.Book.Store.order.model.OrderLine;
 import Online.Book.Store.util.GeneralUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -60,13 +62,22 @@ public class BookServiceImpl implements BookService {
         book.setAuthor(request.getAuthor());
         book.setIsbnCode(GeneralUtil.generateISBN());
         book.setPublicationYear(request.getPublicationYear());
-        book.setAmount(request.getAmount());
+        book.setPrice(request.getAmount());
 
         Book savedBook = bookRepository.save(book);
 
         return getBookDTO(savedBook);
     }
 
+    @Override
+    public void deductBookStock(Book book, int quantity) {
+        log.info("Update book's stock count in database");
+
+        book.setStockCount(book.getStockCount() - quantity);
+
+        // Save updated book information
+        bookRepository.save(book);
+    }
 
     @Override
     public BookDTO getBookDTO(Book book) {
@@ -78,9 +89,47 @@ public class BookServiceImpl implements BookService {
         bookDTO.setAuthor(book.getAuthor());
         bookDTO.setIsbnCode(book.getIsbnCode());
         bookDTO.setPublicationYear(book.getPublicationYear());
-        bookDTO.setAmount(book.getAmount());
+        bookDTO.setAmount(book.getPrice());
 
         return bookDTO;
+    }
+
+    private int getQuantityForBook(Book book, List<OrderLine> orderLineList) {
+        // Find the corresponding OrderLine for this book in the order
+        for (OrderLine orderLine : orderLineList) {
+            if (orderLine.getBook().equals(book)) {
+                return orderLine.getQuantity(); // Return quantity from OrderLine
+            }
+        }
+        // If no OrderLine found for this book, throw an exception or log an error
+        throw new RuntimeException("OrderLine not found for book: " + book.getTitle());
+    }
+
+    public BigDecimal calculateTotalPrice(List<Book> bookList) {
+        return bookList.stream()
+                .map(Book::getPrice) // Assuming you have a getPrice() method in your Book class
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public void validateBook(List<Book> books) {
+
+        List<Long> bookIds = books.stream()
+                .map(Book::getId)
+                .collect(Collectors.toList());
+
+        List<Book> bookList = bookRepository.findAllById(bookIds);
+
+        if (bookList.isEmpty()) {
+            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No books found with the given IDs");
+        }
+    }
+
+    @Override
+    public Book validateBook(Long bookId){
+
+        return bookRepository.findById(bookId)
+                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
     }
 
     @Override
