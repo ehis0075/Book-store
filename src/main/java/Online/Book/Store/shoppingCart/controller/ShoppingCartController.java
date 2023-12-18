@@ -39,10 +39,10 @@ public class ShoppingCartController {
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
     }
 
-    @PostMapping("/getBookList/{customerName}")
-    public Response getBookListFromCart(@PathVariable String customerName) {
+    @PostMapping("/getBookList/{customerEmail}")
+    public Response getBookListFromCart(@PathVariable String customerEmail) {
 
-        List<OrderLine> data = shoppingCartService.getAllItems(customerName);
+        List<OrderLine> data = shoppingCartService.getAllItems(customerEmail);
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
     }
 

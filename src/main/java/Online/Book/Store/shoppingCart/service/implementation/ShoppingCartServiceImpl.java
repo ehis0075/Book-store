@@ -63,6 +63,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         log.info("adding book to shopping cart");
         shoppingCart.add(orderLine);
 
+        // deduct from book stock
+        bookService.deductBookStock(book, orderLine.getQuantity());
+
         ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
         log.info("successfully added book to shopping cart");
 
@@ -101,8 +104,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         // get orderLine
         OrderLine orderLine = orderLineService.findByBookTitle(book.getTitle());
 
+        List<OrderLine> orderLineList = shoppingCart.getOrderLineList();
+
         log.info("removing book from shopping cart");
-        shoppingCart.remove(orderLine);
+        remove(orderLineList, orderLine);
+
+        // reverse book stock
+        bookService.reverseBookStock(book, orderLine.getQuantity());
 
         ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
         log.info("successfully removed book from shopping cart");
@@ -120,6 +128,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         // Retrieve the book list from the shopping cart
 
         return customer.getShoppingCart().getOrderLineList();
+    }
+
+    public void remove(List<OrderLine> orderLineList, OrderLine orderLine) {
+        orderLineList.remove(orderLine);
     }
 
     @Override

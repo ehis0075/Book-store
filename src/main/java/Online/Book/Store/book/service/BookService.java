@@ -14,6 +14,8 @@ public interface BookService {
 
     void deductBookStock(Book book, int quantity);
 
+    void reverseBookStock(Book book, int quantity);
+
     void saveBook(Book book);
 
     BookDTO getBookDTO(Book book);

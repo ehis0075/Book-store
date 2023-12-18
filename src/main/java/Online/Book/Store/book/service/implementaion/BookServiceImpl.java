@@ -71,9 +71,19 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void deductBookStock(Book book, int quantity) {
-        log.info("Update book's stock count in database");
+        log.info("deducting book's stock count in database");
 
         book.setStockCount(book.getStockCount() - quantity);
+
+        // Save updated book information
+        bookRepository.save(book);
+    }
+
+    @Override
+    public void reverseBookStock(Book book, int quantity) {
+        log.info("reversing book's stock count in database");
+
+        book.setStockCount(book.getStockCount() + quantity);
 
         // Save updated book information
         bookRepository.save(book);

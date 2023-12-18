@@ -70,6 +70,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             book.setPrice(GeneralUtil.generateRandomAmount());  // Use a method to generate a random amount
             book.setIsbnCode(GeneralUtil.generateUniqueISBNNumber());
             book.setPublicationYear(GeneralUtil.generateRandomYear());  // Use a method to generate a random year
+            book.setStockCount(10);
 
             bookList.add(book);
         }
