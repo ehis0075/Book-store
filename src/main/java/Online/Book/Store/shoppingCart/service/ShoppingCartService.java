@@ -9,11 +9,11 @@ import java.util.List;
 
 public interface ShoppingCartService {
 
-    ShoppingCartDTO addToCart(CreatShoppingCartDTO request);
+    void addToCart(CreatShoppingCartDTO request);
 
     ShoppingCartDTO getShoppingCartDTO(ShoppingCart shoppingCart);
 
-    ShoppingCartDTO removeFromCart(CreatShoppingCartDTO request);
+    void removeFromCart(CreatShoppingCartDTO request);
 
     List<OrderLine> getAllItems(String customerEmail);
 

@@ -4,9 +4,9 @@ import Online.Book.Store.book.model.Book;
 import Online.Book.Store.book.service.BookService;
 import Online.Book.Store.customer.model.Customer;
 import Online.Book.Store.customer.repository.CustomerRepository;
+import Online.Book.Store.customer.service.CustomerService;
 import Online.Book.Store.exception.GeneralException;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
-import Online.Book.Store.order.dto.CreateOrderLinePayload;
 import Online.Book.Store.order.dto.OrderLineDTO;
 import Online.Book.Store.order.model.OrderLine;
 import Online.Book.Store.order.service.OrderLineService;
@@ -34,31 +34,24 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private final BookService bookService;
 
-    private final CustomerRepository customerRepository;
+    private final CustomerService customerService;
 
     private final ShoppingCartRepository shoppingCartRepository;
 
     @Override
-    public ShoppingCartDTO addToCart(CreatShoppingCartDTO request) {
+    public void addToCart(CreatShoppingCartDTO request) {
         log.info("Request to add book to shopping cart {}", request);
 
-        Book book = bookService.findBookByTitle(request.getBookId());
+        Book book = bookService.findBookById(request.getBookId());
 
         //get customer
-        Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
-
-        if (Objects.isNull(customer)) {
-            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Customer does not exist");
-        }
-
-        CreateOrderLinePayload createOrderLinePayload = new CreateOrderLinePayload();
-        createOrderLinePayload.setBookId(book.getId());
-
-        // create orderLine
-        OrderLine orderLine = orderLineService.createOrderLine(createOrderLinePayload);
+        Customer customer = customerService.findCustomerByEmail(request.getCustomerEmail());
 
         // validate that Book stock is available
-        boolean isAvailable = bookService.validateBookStockIsNotEmpty(orderLine);
+        bookService.validateBookStockIsNotEmpty(book);
+
+        // create orderLine
+        OrderLine orderLine = orderLineService.createOrderLine(book.getId());
 
         // Retrieve the shopping cart
         ShoppingCart shoppingCart = customer.getShoppingCart();
@@ -66,13 +59,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         log.info("adding book to shopping cart");
         shoppingCart.getOrderLineList().add(orderLine);
 
-        ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
+        shoppingCartRepository.save(shoppingCart);
         log.info("successfully added book to shopping cart");
-
-        // deduct from book stock
-        bookService.decreaseBookStock(book);
-
-        return getShoppingCartDTO(savedShoppingCart);
     }
 
     @Override
@@ -126,14 +114,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 //    }
 
     @Override
-    public ShoppingCartDTO removeFromCart(CreatShoppingCartDTO request) {
+    public void removeFromCart(CreatShoppingCartDTO request) {
         log.info("Request to remove book from shopping cart {}", request);
 
         // Retrieve the book
-        Book book = bookService.findBookByTitle(request.getBookId());
+        Book book = bookService.findBookById(request.getBookId());
 
         // Retrieve the customer
-        Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
+        Customer customer = customerService.findCustomerByEmail(request.getCustomerEmail());
 
         if (Objects.isNull(customer)) {
             throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Customer does not exist");
@@ -150,15 +138,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             // Remove the OrderLine from the shopping cart
             customer.getShoppingCart().remove(orderLineToRemove);
 
-            // Update book stock (assuming you have a method to increase the stock)
-            bookService.increaseBookStock(book);
-
             // Save the updated shopping cart
-            ShoppingCart savedShoppingCart = shoppingCartRepository.save(customer.getShoppingCart());
+            shoppingCartRepository.save(customer.getShoppingCart());
 
             log.info("Successfully removed book from shopping cart");
 
-            return getShoppingCartDTO(savedShoppingCart);
         } else {
             throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book not found in the shopping cart");
         }
@@ -170,7 +154,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         log.info("Request to get all items in a shopping cart for {}", customerEmail);
 
         //get customer
-        Customer customer = customerRepository.findByEmail(customerEmail);
+        Customer customer = customerService.findCustomerByEmail(customerEmail);
 
         // Retrieve the book list from the shopping cart
 

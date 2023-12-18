@@ -1,6 +1,5 @@
 package Online.Book.Store.checkout.service.implementation;
 
-import Online.Book.Store.book.model.Book;
 import Online.Book.Store.book.service.BookService;
 import Online.Book.Store.checkout.service.CheckoutService;
 import Online.Book.Store.customer.model.Customer;
@@ -49,11 +48,12 @@ public class CheckoutServiceImpl implements CheckoutService {
         log.info("Request to check out {} {}", request, orderPayload);
 
         // get customer
-        Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
+        Customer customer = customerRepository.findByEmail(request.getCustomerEmail())
+                .orElseThrow(
+                        () -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Customer does not exist"));
 
         //get BookList
         List<OrderLine> orderLineList = customer.getShoppingCart().getOrderLineList();
-
 
         // validate books exist
         bookService.validateBook(orderLineList);

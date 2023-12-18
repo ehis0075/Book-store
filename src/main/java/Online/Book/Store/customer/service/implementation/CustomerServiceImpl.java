@@ -5,22 +5,29 @@ import Online.Book.Store.customer.dto.CustomerDTO;
 import Online.Book.Store.customer.model.Customer;
 import Online.Book.Store.customer.repository.CustomerRepository;
 import Online.Book.Store.customer.service.CustomerService;
+import Online.Book.Store.exception.GeneralException;
+import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.shoppingCart.dto.response.ShoppingCartDTO;
 import Online.Book.Store.shoppingCart.model.ShoppingCart;
 import Online.Book.Store.shoppingCart.service.ShoppingCartService;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 
 @Slf4j
 @Service
-@AllArgsConstructor
+
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
 
     private final ShoppingCartService shoppingCartService;
+
+    public CustomerServiceImpl(CustomerRepository customerRepository, @Lazy ShoppingCartService shoppingCartService) {
+        this.customerRepository = customerRepository;
+        this.shoppingCartService = shoppingCartService;
+    }
 
     @Override
     public CustomerDTO createCustomer(CreateCustomerPayload request) {
@@ -40,6 +47,14 @@ public class CustomerServiceImpl implements CustomerService {
         Customer savedCustomer = customerRepository.save(customer);
 
         return getCustomerDto(savedCustomer);
+    }
+
+    @Override
+    public Customer findCustomerByEmail(String email) {
+
+        return customerRepository.findByEmail(email)
+                .orElseThrow(
+                        () -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Customer does not exist"));
     }
 
     private CustomerDTO getCustomerDto(Customer savedCustomer) {

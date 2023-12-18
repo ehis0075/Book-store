@@ -6,7 +6,6 @@ import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.general.service.GeneralService;
 import Online.Book.Store.order.model.OrderLine;
 import Online.Book.Store.shoppingCart.dto.request.CreatShoppingCartDTO;
-import Online.Book.Store.shoppingCart.dto.response.ShoppingCartDTO;
 import Online.Book.Store.shoppingCart.service.ShoppingCartService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,15 +27,15 @@ public class ShoppingCartController {
     @PostMapping("/add")
     public Response addBookToCart(@RequestBody CreatShoppingCartDTO request) {
 
-        ShoppingCartDTO data = shoppingCartService.addToCart(request);
-        return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
+        shoppingCartService.addToCart(request);
+        return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, "successfully added to cart");
     }
 
     @PostMapping("/remove")
     public Response removeBookFromCart(@RequestBody CreatShoppingCartDTO request) {
 
-        ShoppingCartDTO data = shoppingCartService.removeFromCart(request);
-        return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
+        shoppingCartService.removeFromCart(request);
+        return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, "successful");
     }
 
     @PostMapping("/getBookList/{customerEmail}")

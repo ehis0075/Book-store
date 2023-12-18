@@ -22,11 +22,11 @@ public interface BookService {
 
     void validateBook(List<OrderLine> books);
 
-    boolean validateBookStockIsNotEmpty(OrderLine orderLine);
+    void validateBookStockIsNotEmpty(Book book);
 
     Book validateBookById(Long bookId);
 
-    Book findBookByTitle(String bookTitle);
+    Book findBookById(Long bookId);
 
     BookListDTO searchBookList(String query, int pageNumber, int pageSize);
 }

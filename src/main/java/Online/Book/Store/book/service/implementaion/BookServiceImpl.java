@@ -153,21 +153,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public boolean validateBookStockIsNotEmpty(OrderLine orderLine) {
-        log.info("Request to validate book stock is not empty");
+    public void validateBookStockIsNotEmpty(Book book) {
+        log.info("Request to confirm book availability");
 
-        if (orderLine == null || orderLine.getBook() == null) {
-            // Handle null conditions
-            return false;
+        if (book.getStockCount() < 1) {
+            log.info("Stock count for book '{}' is less than zero: {}", book.getTitle(), book.getStockCount());
+            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book is no longer in Stock");
         }
-
-        Book book = orderLine.getBook();
-        if (book.getStockCount() < 0) {
-            log.warn("Stock count for book '{}' is less than zero: {}", book.getTitle(), book.getStockCount());
-            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book Stock count is less than zero");
-        }
-
-        return true;
     }
 
     @Override
@@ -178,10 +170,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book findBookByTitle(String bookTitle) {
-        log.info("Request to get a book with title {}", bookTitle);
+    public Book findBookById(Long bookId) {
+        log.info("Request to get a book with title {}", bookId);
 
-        Book book = bookRepository.findByTitle(bookTitle);
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
 
         if (Objects.isNull(book)) {
             throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given title");
