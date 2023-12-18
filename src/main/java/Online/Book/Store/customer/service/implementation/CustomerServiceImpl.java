@@ -57,7 +57,8 @@ public class CustomerServiceImpl implements CustomerService {
                         () -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Customer does not exist"));
     }
 
-    private CustomerDTO getCustomerDto(Customer savedCustomer) {
+    @Override
+    public CustomerDTO getCustomerDto(Customer savedCustomer) {
 
         ShoppingCart shoppingCart = savedCustomer.getShoppingCart();
 

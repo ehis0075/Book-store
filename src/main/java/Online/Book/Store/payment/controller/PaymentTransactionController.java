@@ -4,6 +4,7 @@ package Online.Book.Store.payment.controller;
 import Online.Book.Store.general.dto.Response;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.general.service.GeneralService;
+import Online.Book.Store.payment.dto.PaymentTransactionListDTO;
 import Online.Book.Store.payment.model.PaymentTransaction;
 import Online.Book.Store.payment.service.PaymentTransactionService;
 import lombok.AllArgsConstructor;
@@ -20,9 +21,9 @@ public class PaymentTransactionController {
     private final GeneralService generalService;
 
     @GetMapping("/{customerEmail}")
-    public Response getPaymentTransactionHistory(@PathVariable String customerEmail, @RequestParam(defaultValue = "0") int pageSize, @RequestParam(defaultValue = "100") int pageNumber) {
+    public Response getPaymentTransactionHistory(@PathVariable String customerEmail, @RequestParam(defaultValue = "100") int pageSize, @RequestParam(defaultValue = "0") int pageNumber) {
 
-        Page<PaymentTransaction> data = paymentTransactionService.getPaymentTransactionRecord(customerEmail, pageNumber, pageSize);
+        PaymentTransactionListDTO data = paymentTransactionService.getPaymentTransactionRecord(customerEmail, pageNumber, pageSize);
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
     }
 

@@ -1,10 +1,12 @@
 package Online.Book.Store.payment.model;
 
 import Online.Book.Store.customer.model.Customer;
+import Online.Book.Store.payment.dto.PaymentTransactionDTO;
 import Online.Book.Store.payment.enums.CHANNEL;
 import Online.Book.Store.payment.enums.PAYMENTSTATUS;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -18,7 +20,6 @@ public class PaymentTransaction {
     private Long id;
 
     @Column(unique = true)
-
     private String paymentReferenceNumber;
 
     private BigDecimal amount;
@@ -34,5 +35,12 @@ public class PaymentTransaction {
 
     @Enumerated(EnumType.STRING)
     private CHANNEL paymentChannel;
+
+    public static PaymentTransactionDTO getPaymentTransactionDTO(PaymentTransaction paymentTransaction) {
+        PaymentTransactionDTO paymentTransactionDTO = new PaymentTransactionDTO();
+        BeanUtils.copyProperties(paymentTransaction, paymentTransactionDTO);
+
+        return paymentTransactionDTO;
+    }
 
 }

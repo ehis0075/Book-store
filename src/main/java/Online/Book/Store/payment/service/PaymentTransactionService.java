@@ -2,6 +2,7 @@ package Online.Book.Store.payment.service;
 
 
 import Online.Book.Store.payment.dto.PaymentRequestPayload;
+import Online.Book.Store.payment.dto.PaymentTransactionListDTO;
 import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
 import Online.Book.Store.payment.dto.UpdatePaymentTransactionPayload;
 import Online.Book.Store.payment.model.PaymentTransaction;
@@ -15,5 +16,5 @@ public interface PaymentTransactionService {
 
     PaymentTransaction validatePaymentTransaction(String refNumber);
 
-    Page<PaymentTransaction> getPaymentTransactionRecord(String customerEmail, int pageNumber, int pageSize);
+    PaymentTransactionListDTO getPaymentTransactionRecord(String customerEmail, int pageNumber, int pageSize);
 }

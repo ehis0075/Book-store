@@ -136,7 +136,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public void clearShoppingCart(Long shoppingCartId) {
         log.info("Request to clear shopping cart");
 
-        shoppingCartRepository.deleteById(shoppingCartId);
+        ShoppingCart shoppingCart = shoppingCartRepository.findById(shoppingCartId)
+                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Shopping cart Not found"));
+
+        shoppingCart.getOrderLineList().clear();
     }
 
     private List<OrderLineDTO> getOrderLineDTOS(List<OrderLine> orderLineList) {

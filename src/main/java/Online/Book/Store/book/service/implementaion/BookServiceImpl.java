@@ -3,7 +3,6 @@ package Online.Book.Store.book.service.implementaion;
 import Online.Book.Store.book.dto.request.SearchBookRequestDTO;
 import Online.Book.Store.book.dto.response.BookDTO;
 import Online.Book.Store.book.dto.response.BookListDTO;
-import Online.Book.Store.book.enums.GENRE;
 import Online.Book.Store.book.model.Book;
 import Online.Book.Store.book.repository.BookRepository;
 import Online.Book.Store.book.service.BookService;
@@ -43,21 +42,6 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
 
     @Override
-    public BookDTO getBookDTO(Book book) {
-
-        BookDTO bookDTO = new BookDTO();
-        bookDTO.setId(bookDTO.getId());
-        bookDTO.setTitle(book.getTitle());
-        bookDTO.setGenre(book.getGenre());
-        bookDTO.setAuthor(book.getAuthor());
-        bookDTO.setIsbnCode(book.getIsbnCode());
-        bookDTO.setPublicationYear(book.getPublicationYear());
-        bookDTO.setAmount(book.getPrice());
-
-        return bookDTO;
-    }
-
-    @Override
     public void validateBookStockIsNotEmpty(Book book) {
         log.info("Request to confirm book availability");
 
@@ -81,29 +65,10 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookListDTO searchBookList(String query, int pageNumber, int pageSize) {
+    public BookListDTO searchBookList(SearchBookRequestDTO requestDTO) {
+        log.info("Search Book List {}", requestDTO);
 
-        String upperCase = query.toUpperCase();
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-
-        Page<Book> bookPage;
-
-        switch (upperCase) {
-            case "TITLE":
-                bookPage = bookRepository.searchByTitle(query, pageable);
-                break;
-            case "PUBLICATIONYEAR":
-                bookPage = bookRepository.searchByPublicationYear(query, pageable);
-                break;
-            case "AUTHOR":
-                bookPage = bookRepository.searchByAuthor(query, pageable);
-                break;
-            case "GENRE":
-                bookPage = bookRepository.searchByGenre(GENRE.valueOf(query), pageable);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid query type: " + query);
-        }
+        Page<Book> bookPage = searchBook(requestDTO);
 
         return getBookListDTO(bookPage);
     }
@@ -174,90 +139,5 @@ public class BookServiceImpl implements BookService {
 
         return new PageImpl<>(query.getResultList(), paged, totalRows);
     }
-
-
-  //  @Override
-//    public BookDTO addBook(CreateUpdateBookRequest request) {
-//        log.info("Request to add book with payload {}", request);
-//
-//        //validate book
-//        boolean isExist = bookRepository.existsByTitle(request.getTitle());
-//
-//        if (isExist) {
-//            throw new GeneralException(ResponseCodeAndMessage.ALREADY_EXIST_86.responseMessage, "Book with title already exist");
-//        }
-//
-//        Book book = new Book();
-//        book.setTitle(request.getTitle());
-//        book.setGenre(request.getGenre());
-//        book.setAuthor(request.getAuthor());
-//        book.setIsbnCode(GeneralUtil.generateISBN());
-//        book.setPublicationYear(request.getPublicationYear());
-//        book.setPrice(request.getAmount());
-//
-//        Book savedBook = bookRepository.save(book);
-//
-//        return getBookDTO(savedBook);
-//    }
-
-//    @Override
-//    public void decreaseBookStock(Book book) {
-//        log.info("decreasing book stock count in database");
-//
-//        book.setStockCount(book.getStockCount() - 1);
-//
-//        // Save updated book information
-//        bookRepository.save(book);
-//    }
-
-//    @Override
-//    public void increaseBookStock(Book book) {
-//        log.info("increasing book stock count in database");
-//
-//        book.setStockCount(book.getStockCount() + 1);
-//
-//        // Save updated book information
-//        bookRepository.save(book);
-//    }
-
-//    @Override
-//    public void saveBook(Book book) {
-//
-//        // Save updated book information
-//        bookRepository.save(book);
-//    }
-
-
-
-//    public BigDecimal calculateTotalPrice(List<Book> bookList) {
-//        return bookList.stream()
-//                .map(Book::getPrice) // Assuming you have a getPrice() method in your Book class
-//                .reduce(BigDecimal.ZERO, BigDecimal::add);
-//    }
-//
-//    @Override
-//    public void validateBook(List<OrderLine> orderLineList) {
-//        for (OrderLine orderLine : orderLineList) {
-//            Book book = orderLine.getBook();
-//            if (book == null || !bookRepository.existsById(book.getId())) {
-//                throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book not found: " + book);
-//            }
-//        }
-//    }
-
-    //
-//    @Override
-//    public void validateBookStockExist(List<OrderLine> orderLineList) {
-//        log.info("Request to confirm book availability");
-//
-//    }
-//
-//    @Override
-//    public Book validateBookById(Long bookId) {
-//
-//        return bookRepository.findById(bookId)
-//                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
-//    }
-
 
 }

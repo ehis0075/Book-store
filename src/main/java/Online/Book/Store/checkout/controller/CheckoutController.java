@@ -7,6 +7,7 @@ import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.general.service.GeneralService;
 import Online.Book.Store.payment.dto.PaymentRequestPayload;
 import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
+import Online.Book.Store.payment.dto.UpdatePaymentTransactionPayload;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,11 +23,18 @@ public class CheckoutController {
 
     private final GeneralService generalService;
 
-    @PostMapping("/processOrder")
-    public Response addBook(@RequestBody PaymentRequestPayload request) {
+    @PostMapping("/checkOut")
+    public Response checkOut(@RequestBody PaymentRequestPayload request) {
 
         PaymentTransactionResponseDTO data = checkoutService.checkOut(request);
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
+    }
+
+    @PostMapping("/update")
+    public Response addBook(@RequestBody UpdatePaymentTransactionPayload request) {
+
+        checkoutService.updateTransactionRecord(request);
+        return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, "Payment transaction record updated successfully");
     }
 
 }

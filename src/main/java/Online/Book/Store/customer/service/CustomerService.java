@@ -9,4 +9,6 @@ public interface CustomerService {
     CustomerDTO createCustomer(CreateCustomerPayload request);
 
     Customer findCustomerByEmail(String email);
+
+    CustomerDTO getCustomerDto(Customer savedCustomer);
 }
