@@ -153,6 +153,24 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public boolean validateBookStockIsNotEmpty(OrderLine orderLine) {
+        log.info("Request to validate book stock is not empty");
+
+        if (orderLine == null || orderLine.getBook() == null) {
+            // Handle null conditions
+            return false;
+        }
+
+        Book book = orderLine.getBook();
+        if (book.getStockCount() < 0) {
+            log.warn("Stock count for book '{}' is less than zero: {}", book.getTitle(), book.getStockCount());
+            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book Stock count is less than zero");
+        }
+
+        return true;
+    }
+
+    @Override
     public Book validateBookById(Long bookId) {
 
         return bookRepository.findById(bookId)

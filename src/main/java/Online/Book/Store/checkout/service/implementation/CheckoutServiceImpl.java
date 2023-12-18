@@ -54,6 +54,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         //get BookList
         List<OrderLine> orderLineList = customer.getShoppingCart().getOrderLineList();
 
+
         // validate books exist
         bookService.validateBook(orderLineList);
 
@@ -75,9 +76,8 @@ public class CheckoutServiceImpl implements CheckoutService {
                 //update payment
                 paymentTransactionResponseDTO = paymentTransactionService.updatePayment(paymentTransactionResponse.getPaymentReferenceNumber());
 
-
                 //deduct stock : Update the book's stock count in the database by subtracting the ordered quantity.
-                deductBookStock(orderLineList);
+//                bookService.decreaseBookStock();
 
                 //clear shopping cart
                 shoppingCartService.clearShoppingCart(customer.getShoppingCart().getId());
@@ -92,27 +92,27 @@ public class CheckoutServiceImpl implements CheckoutService {
         return paymentTransactionResponseDTO;
     }
 
-    public void deductBookStock(List<OrderLine> orderLineList) {
-        log.info("Deducting stock for ordered books");
+//    public void deductBookStock(List<OrderLine> orderLineList) {
+//        log.info("Deducting stock for ordered books");
+//
+//        for (OrderLine orderLine : orderLineList) {
+//            Book book = orderLine.getBook();
+//            int quantity = orderLine.getQuantity();
+//            deductStock(book, quantity);
+//        }
+//    }
 
-        for (OrderLine orderLine : orderLineList) {
-            Book book = orderLine.getBook();
-            int quantity = orderLine.getQuantity();
-            deductStock(book, quantity);
-        }
-    }
-
-    private void deductStock(Book book, int quantity) {
-        int currentStock = book.getStockCount();
-        if (currentStock < quantity) {
-            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Insufficient stock for book: " + book.getTitle());
-        }
-
-        book.setStockCount(currentStock - quantity);
-
-        // update the book in the database
-        bookService.saveBook(book);
-    }
+//    private void deductStock(Book book, int quantity) {
+//        int currentStock = book.getStockCount();
+//        if (currentStock < quantity) {
+//            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Insufficient stock for book: " + book.getTitle());
+//        }
+//
+//        book.setStockCount(currentStock - quantity);
+//
+//        // update the book in the database
+//        bookService.saveBook(book);
+//    }
 
     public PaymentTransactionResponseDTO makePayment(PaymentRequestPayload request) {
         log.info("Request to make payment {}", request);

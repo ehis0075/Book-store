@@ -57,17 +57,20 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         // create orderLine
         OrderLine orderLine = orderLineService.createOrderLine(createOrderLinePayload);
 
+        // validate that Book stock is available
+        boolean isAvailable = bookService.validateBookStockIsNotEmpty(orderLine);
+
         // Retrieve the shopping cart
         ShoppingCart shoppingCart = customer.getShoppingCart();
 
         log.info("adding book to shopping cart");
-        shoppingCart.add(orderLine);
-
-        // deduct from book stock
-        bookService.decreaseBookStock(book);
+        shoppingCart.getOrderLineList().add(orderLine);
 
         ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
         log.info("successfully added book to shopping cart");
+
+        // deduct from book stock
+        bookService.decreaseBookStock(book);
 
         return getShoppingCartDTO(savedShoppingCart);
     }

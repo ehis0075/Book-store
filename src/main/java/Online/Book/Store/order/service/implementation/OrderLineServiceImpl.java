@@ -37,7 +37,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         OrderLine orderLine = new OrderLine();
         orderLine.setBook(book);
 
-        orderLine = orderLineRepository.save(orderLine);
+        orderLine = saveOrderLine(orderLine); //remove
 
         return orderLine;
     }
@@ -47,7 +47,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         log.info("Request to get order line with {}", bookId);
 
         return orderLineRepository.findById(bookId)
-                .orElseThrow(()  -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
+                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
     }
 
 
@@ -81,5 +81,10 @@ public class OrderLineServiceImpl implements OrderLineService {
         BeanUtils.copyProperties(orderLine, orderLineDTO);
 
         return orderLineDTO;
+    }
+
+    public OrderLine saveOrderLine(OrderLine orderLine) {
+
+        return orderLineRepository.save(orderLine);
     }
 }

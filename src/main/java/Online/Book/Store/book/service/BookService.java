@@ -22,6 +22,8 @@ public interface BookService {
 
     void validateBook(List<OrderLine> books);
 
+    boolean validateBookStockIsNotEmpty(OrderLine orderLine);
+
     Book validateBookById(Long bookId);
 
     Book findBookByTitle(String bookTitle);
