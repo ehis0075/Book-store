@@ -1,31 +1,28 @@
-package Online.Book.Store.checkout.controller;
+package Online.Book.Store.payment.controller;
 
 
-import Online.Book.Store.checkout.service.CheckoutService;
 import Online.Book.Store.general.dto.Response;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.general.service.GeneralService;
-import Online.Book.Store.payment.dto.PaymentRequestPayload;
-import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
+import Online.Book.Store.payment.model.PaymentTransaction;
+import Online.Book.Store.payment.service.PaymentTransactionService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/v1/checkouts")
-public class CheckoutController {
+@RequestMapping("/api/v1/transactions")
+public class PaymentTransactionController {
 
-    private final CheckoutService checkoutService;
+    private final PaymentTransactionService paymentTransactionService;
 
     private final GeneralService generalService;
 
-    @PostMapping("/processOrder")
-    public Response addBook(@RequestBody PaymentRequestPayload request) {
+    @GetMapping("/{customerEmail}")
+    public Response getPaymentTransactionHistory(@PathVariable String customerEmail, @RequestParam(defaultValue = "0") int pageSize, @RequestParam(defaultValue = "100") int pageNumber) {
 
-        PaymentTransactionResponseDTO data = checkoutService.checkOut(request);
+        Page<PaymentTransaction> data = paymentTransactionService.getPaymentTransactionRecord(customerEmail, pageNumber, pageSize);
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
     }
 

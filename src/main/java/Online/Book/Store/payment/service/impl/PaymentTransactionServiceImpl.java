@@ -16,6 +16,9 @@ import Online.Book.Store.shoppingCart.service.ShoppingCartService;
 import Online.Book.Store.util.GeneralUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -33,6 +36,7 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 
     private final ShoppingCartService shoppingCartService;
     private static final String PAYMENT_GATEWAY_URL = "gatewayUrl";
+    private static final String PAYMENT_STATUS = PAYMENTSTATUS.SUCCESSFUL.name();
 
     @Override
     public PaymentTransactionResponseDTO createPaymentTransaction(PaymentRequestPayload request) {
@@ -86,6 +90,15 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 
         return paymentTransactionRepository.findByPaymentReferenceNumber(refNumber)
                 .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Transaction record Not Found"));
+    }
+
+    @Override
+    public Page<PaymentTransaction> getPaymentTransactionRecord(String customerEmail, int pageNumber, int pageSize) {
+        log.info("Request to get payment transaction records for {}", customerEmail);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        return paymentTransactionRepository.findByPaymentStatusAndCustomerEmail(PAYMENT_STATUS, customerEmail, pageable);
     }
 
 }

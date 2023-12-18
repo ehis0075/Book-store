@@ -4,6 +4,7 @@ import Online.Book.Store.checkout.service.CheckoutService;
 import Online.Book.Store.customer.model.Customer;
 import Online.Book.Store.customer.service.CustomerService;
 import Online.Book.Store.orderLine.model.OrderLine;
+import Online.Book.Store.payment.dto.GetPaymentTransactionRecordRequest;
 import Online.Book.Store.payment.dto.PaymentRequestPayload;
 import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
 import Online.Book.Store.payment.dto.UpdatePaymentTransactionPayload;
@@ -61,4 +62,5 @@ public class CheckoutServiceImpl implements CheckoutService {
             shoppingCartService.clearShoppingCart(customer.getShoppingCart().getId());
         }
     }
+
 }

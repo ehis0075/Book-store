@@ -1,6 +1,5 @@
 package Online.Book.Store.book.service.implementaion;
 
-import Online.Book.Store.book.dto.request.CreateUpdateBookRequest;
 import Online.Book.Store.book.dto.request.SearchBookRequestDTO;
 import Online.Book.Store.book.dto.response.BookDTO;
 import Online.Book.Store.book.dto.response.BookListDTO;
@@ -10,7 +9,6 @@ import Online.Book.Store.book.repository.BookRepository;
 import Online.Book.Store.book.service.BookService;
 import Online.Book.Store.exception.GeneralException;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
-import Online.Book.Store.orderLine.model.OrderLine;
 import Online.Book.Store.util.GeneralUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -27,7 +25,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -46,57 +43,6 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
 
     @Override
-    public BookDTO addBook(CreateUpdateBookRequest request) {
-        log.info("Request to add book with payload {}", request);
-
-        //validate book
-        boolean isExist = bookRepository.existsByTitle(request.getTitle());
-
-        if (isExist) {
-            throw new GeneralException(ResponseCodeAndMessage.ALREADY_EXIST_86.responseMessage, "Book with title already exist");
-        }
-
-        Book book = new Book();
-        book.setTitle(request.getTitle());
-        book.setGenre(request.getGenre());
-        book.setAuthor(request.getAuthor());
-        book.setIsbnCode(GeneralUtil.generateISBN());
-        book.setPublicationYear(request.getPublicationYear());
-        book.setPrice(request.getAmount());
-
-        Book savedBook = bookRepository.save(book);
-
-        return getBookDTO(savedBook);
-    }
-
-    @Override
-    public void decreaseBookStock(Book book) {
-        log.info("decreasing book stock count in database");
-
-        book.setStockCount(book.getStockCount() - 1);
-
-        // Save updated book information
-        bookRepository.save(book);
-    }
-
-    @Override
-    public void increaseBookStock(Book book) {
-        log.info("increasing book stock count in database");
-
-        book.setStockCount(book.getStockCount() + 1);
-
-        // Save updated book information
-        bookRepository.save(book);
-    }
-
-    @Override
-    public void saveBook(Book book) {
-
-        // Save updated book information
-        bookRepository.save(book);
-    }
-
-    @Override
     public BookDTO getBookDTO(Book book) {
 
         BookDTO bookDTO = new BookDTO();
@@ -111,22 +57,6 @@ public class BookServiceImpl implements BookService {
         return bookDTO;
     }
 
-    public BigDecimal calculateTotalPrice(List<Book> bookList) {
-        return bookList.stream()
-                .map(Book::getPrice) // Assuming you have a getPrice() method in your Book class
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    @Override
-    public void validateBook(List<OrderLine> orderLineList) {
-        for (OrderLine orderLine : orderLineList) {
-            Book book = orderLine.getBook();
-            if (book == null || !bookRepository.existsById(book.getId())) {
-                throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book not found: " + book);
-            }
-        }
-    }
-
     @Override
     public void validateBookStockIsNotEmpty(Book book) {
         log.info("Request to confirm book availability");
@@ -135,19 +65,6 @@ public class BookServiceImpl implements BookService {
             log.info("Stock count for book '{}' is less than zero: {}", book.getTitle(), book.getStockCount());
             throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book is no longer in Stock");
         }
-    }
-
-    @Override
-    public void validateBookStockExist(List<OrderLine> orderLineList) {
-        log.info("Request to confirm book availability");
-
-    }
-
-    @Override
-    public Book validateBookById(Long bookId) {
-
-        return bookRepository.findById(bookId)
-                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
     }
 
     @Override
@@ -257,5 +174,90 @@ public class BookServiceImpl implements BookService {
 
         return new PageImpl<>(query.getResultList(), paged, totalRows);
     }
+
+
+  //  @Override
+//    public BookDTO addBook(CreateUpdateBookRequest request) {
+//        log.info("Request to add book with payload {}", request);
+//
+//        //validate book
+//        boolean isExist = bookRepository.existsByTitle(request.getTitle());
+//
+//        if (isExist) {
+//            throw new GeneralException(ResponseCodeAndMessage.ALREADY_EXIST_86.responseMessage, "Book with title already exist");
+//        }
+//
+//        Book book = new Book();
+//        book.setTitle(request.getTitle());
+//        book.setGenre(request.getGenre());
+//        book.setAuthor(request.getAuthor());
+//        book.setIsbnCode(GeneralUtil.generateISBN());
+//        book.setPublicationYear(request.getPublicationYear());
+//        book.setPrice(request.getAmount());
+//
+//        Book savedBook = bookRepository.save(book);
+//
+//        return getBookDTO(savedBook);
+//    }
+
+//    @Override
+//    public void decreaseBookStock(Book book) {
+//        log.info("decreasing book stock count in database");
+//
+//        book.setStockCount(book.getStockCount() - 1);
+//
+//        // Save updated book information
+//        bookRepository.save(book);
+//    }
+
+//    @Override
+//    public void increaseBookStock(Book book) {
+//        log.info("increasing book stock count in database");
+//
+//        book.setStockCount(book.getStockCount() + 1);
+//
+//        // Save updated book information
+//        bookRepository.save(book);
+//    }
+
+//    @Override
+//    public void saveBook(Book book) {
+//
+//        // Save updated book information
+//        bookRepository.save(book);
+//    }
+
+
+
+//    public BigDecimal calculateTotalPrice(List<Book> bookList) {
+//        return bookList.stream()
+//                .map(Book::getPrice) // Assuming you have a getPrice() method in your Book class
+//                .reduce(BigDecimal.ZERO, BigDecimal::add);
+//    }
+//
+//    @Override
+//    public void validateBook(List<OrderLine> orderLineList) {
+//        for (OrderLine orderLine : orderLineList) {
+//            Book book = orderLine.getBook();
+//            if (book == null || !bookRepository.existsById(book.getId())) {
+//                throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book not found: " + book);
+//            }
+//        }
+//    }
+
+    //
+//    @Override
+//    public void validateBookStockExist(List<OrderLine> orderLineList) {
+//        log.info("Request to confirm book availability");
+//
+//    }
+//
+//    @Override
+//    public Book validateBookById(Long bookId) {
+//
+//        return bookRepository.findById(bookId)
+//                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
+//    }
+
 
 }

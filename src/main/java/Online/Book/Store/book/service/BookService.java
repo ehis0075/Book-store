@@ -10,23 +10,23 @@ import java.util.List;
 
 public interface BookService {
 
-    BookDTO addBook(CreateUpdateBookRequest request);
-
-    void decreaseBookStock(Book book);
-
-    void increaseBookStock(Book book);
-
-    void saveBook(Book book);
+//    BookDTO addBook(CreateUpdateBookRequest request);
+//
+//    void decreaseBookStock(Book book);
+//
+//    void increaseBookStock(Book book);
+//
+//    void saveBook(Book book);
 
     BookDTO getBookDTO(Book book);
 
-    void validateBook(List<OrderLine> books);
+//    void validateBook(List<OrderLine> books);
 
     void validateBookStockIsNotEmpty(Book book);
 
-    void validateBookStockExist(List<OrderLine> orderLineList);
-
-    Book validateBookById(Long bookId);
+//    void validateBookStockExist(List<OrderLine> orderLineList);
+//
+//    Book validateBookById(Long bookId);
 
     Book findBookById(Long bookId);
 

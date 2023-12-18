@@ -1,2 +1,10 @@
-package Online.Book.Store.payment.dto;public class GetPaymentTransactionRecordRequest {
+package Online.Book.Store.payment.dto;
+
+
+import lombok.Data;
+
+@Data
+public class GetPaymentTransactionRecordRequest {
+
+    private String customerEmail;
 }

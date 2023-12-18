@@ -38,12 +38,11 @@ public class ShoppingCartController {
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, "successfully removed item from cart");
     }
 
-    @PostMapping("/getBookList/{customerEmail}") //
-    public Response getBookListFromCart(@PathVariable String customerEmail) {
+    @PostMapping("/getCartItems/{customerEmail}") //
+    public Response getCartItems(@PathVariable String customerEmail) {
 
         List<OrderLine> data = shoppingCartService.getAllItems(customerEmail);
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
     }
-
 
 }
