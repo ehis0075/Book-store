@@ -47,14 +47,6 @@ public class GeneralUtil {
         return sb.toString();
     }
 
-    public static String generateUniqueValue() {
-        String ref = UUID.randomUUID().toString().replaceAll("[^0-9]", "");
-        ref = ref.length() > 12 ? ref.substring(0, 14) : ref;
-
-        ref = getString(ref);
-        return ref;
-    }
-
     private static String getString(String ref) {
         if (ref.length() < 14) {
 
@@ -117,6 +109,5 @@ public class GeneralUtil {
         int maxYear = 2023;
         return String.valueOf(minYear + random.nextInt(maxYear - minYear + 1));
     }
-
 
 }

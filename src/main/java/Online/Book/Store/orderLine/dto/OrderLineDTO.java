@@ -1,4 +1,4 @@
-package Online.Book.Store.order.dto;
+package Online.Book.Store.orderLine.dto;
 
 import Online.Book.Store.book.model.Book;
 import lombok.Data;

@@ -10,7 +10,7 @@ import Online.Book.Store.book.repository.BookRepository;
 import Online.Book.Store.book.service.BookService;
 import Online.Book.Store.exception.GeneralException;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
-import Online.Book.Store.order.model.OrderLine;
+import Online.Book.Store.orderLine.model.OrderLine;
 import Online.Book.Store.util.GeneralUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -111,36 +111,11 @@ public class BookServiceImpl implements BookService {
         return bookDTO;
     }
 
-//    private int getQuantityForBook(Book book, List<OrderLine> orderLineList) {
-//        // Find the corresponding OrderLine for this book in the order
-//        for (OrderLine orderLine : orderLineList) {
-//            if (orderLine.getBook().equals(book)) {
-//                return orderLine.getQuantity(); // Return quantity from OrderLine
-//            }
-//        }
-//        // If no OrderLine found for this book, throw an exception or log an error
-//        throw new RuntimeException("OrderLine not found for book: " + book.getTitle());
-//    }
-
     public BigDecimal calculateTotalPrice(List<Book> bookList) {
         return bookList.stream()
                 .map(Book::getPrice) // Assuming you have a getPrice() method in your Book class
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-
-//    @Override
-//    public void validateBook(List<OrderLine> orderLineList) {
-//
-//        List<Long> bookIds = orderLineList.stream()
-//                .map(OrderLine::getId)
-//                .collect(Collectors.toList());
-//
-//        List<Book> bookList = bookRepository.findAllById(bookIds);
-//
-//        if (bookList.isEmpty()) {
-//            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No orderLineList found with the given IDs");
-//        }
-//    }
 
     @Override
     public void validateBook(List<OrderLine> orderLineList) {
@@ -160,6 +135,12 @@ public class BookServiceImpl implements BookService {
             log.info("Stock count for book '{}' is less than zero: {}", book.getTitle(), book.getStockCount());
             throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book is no longer in Stock");
         }
+    }
+
+    @Override
+    public void validateBookStockExist(List<OrderLine> orderLineList) {
+        log.info("Request to confirm book availability");
+
     }
 
     @Override

@@ -5,7 +5,6 @@ import Online.Book.Store.checkout.service.CheckoutService;
 import Online.Book.Store.general.dto.Response;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.general.service.GeneralService;
-import Online.Book.Store.order.dto.CreateOrderPayload;
 import Online.Book.Store.payment.dto.PaymentRequestPayload;
 import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
 import lombok.AllArgsConstructor;
@@ -24,9 +23,9 @@ public class CheckoutController {
     private final GeneralService generalService;
 
     @PostMapping("/processOrder")
-    public Response addBook(@RequestBody PaymentRequestPayload request, CreateOrderPayload payload) {
+    public Response addBook(@RequestBody PaymentRequestPayload request) {
 
-        PaymentTransactionResponseDTO data = checkoutService.processOrder(request, payload);
+        PaymentTransactionResponseDTO data = checkoutService.checkOut(request);
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
     }
 

@@ -1,13 +1,10 @@
 package Online.Book.Store.customer.model;
 
-import Online.Book.Store.order.model.CustomerOrder;
 import Online.Book.Store.shoppingCart.model.ShoppingCart;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,9 +21,6 @@ public class Customer {
     private String lastName;
 
     private String email;
-
-    @OneToMany(mappedBy = "customer")
-    private List<CustomerOrder> customerOrders;
 
     @OneToOne()
     private ShoppingCart shoppingCart;

@@ -1,17 +1,25 @@
 package Online.Book.Store.payment.service.impl;
 
+import Online.Book.Store.customer.model.Customer;
+import Online.Book.Store.customer.service.CustomerService;
+import Online.Book.Store.exception.GeneralException;
+import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.payment.dto.PaymentRequestPayload;
 import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
+import Online.Book.Store.payment.dto.UpdatePaymentTransactionPayload;
+import Online.Book.Store.payment.enums.CHANNEL;
 import Online.Book.Store.payment.enums.PAYMENTSTATUS;
 import Online.Book.Store.payment.model.PaymentTransaction;
 import Online.Book.Store.payment.repository.PaymentTransactionRepository;
 import Online.Book.Store.payment.service.PaymentTransactionService;
+import Online.Book.Store.shoppingCart.service.ShoppingCartService;
 import Online.Book.Store.util.GeneralUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Objects;
 
 
 @Slf4j
@@ -21,56 +29,63 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 
     private final PaymentTransactionRepository paymentTransactionRepository;
 
+    private final CustomerService customerService;
+
+    private final ShoppingCartService shoppingCartService;
+    private static final String PAYMENT_GATEWAY_URL = "gatewayUrl";
+
     @Override
-    public PaymentTransactionResponseDTO initPayment(PaymentRequestPayload request) {
-        log.info("Request to save transaction payment with payload {}", request);
+    public PaymentTransactionResponseDTO createPaymentTransaction(PaymentRequestPayload request) {
+        log.info("Request to create transaction record with payload : {} ", request);
 
-        log.info("Checking out with Transfer {}", request);
+        String referenceNumber = request.getCustomerEmail() + GeneralUtil.generateUniqueReferenceNumber(new Date());
 
-        // Simulate transfer checkout
-        Date transactionDate = new Date();
-        String referenceNumber = request.getCustomerEmail() + GeneralUtil.generateUniqueReferenceNumber(transactionDate);
+        // get customer
+        Customer customer = customerService.findCustomerByEmail(request.getCustomerEmail());
 
         PaymentTransaction paymentTransaction = new PaymentTransaction();
         paymentTransaction.setPaymentReferenceNumber(referenceNumber);
-        paymentTransaction.setTransactionDate(transactionDate);
+        paymentTransaction.setTransactionDate(new Date());
         paymentTransaction.setAmount(request.getAmount());
-        paymentTransaction.setCustomerName(request.getCustomerEmail());
+        paymentTransaction.setCustomer(customer);
         paymentTransaction.setPaymentStatus(PAYMENTSTATUS.PENDING);
-        paymentTransaction.setPaymentMethod(request.getPaymentmethod());
 
-        // add the orderId
+        savePaymentTransaction(paymentTransaction);
 
-        PaymentTransaction savedPaymentTransaction = paymentTransactionRepository.save(paymentTransaction);
+        return new PaymentTransactionResponseDTO(referenceNumber, paymentTransaction.getAmount(), PAYMENT_GATEWAY_URL);
+    }
 
-        return getPaymentTransactionDto(savedPaymentTransaction);
+    public void savePaymentTransaction(PaymentTransaction paymentTransaction) {
+        paymentTransactionRepository.save(paymentTransaction);
     }
 
     @Override
-    public PaymentTransactionResponseDTO updatePayment(String referenceNumber) {
-        log.info("Request to update transaction payment with payload {}", referenceNumber);
+    public void updatePaymentTransaction(UpdatePaymentTransactionPayload requestPayload) {
+        log.info("Request to update transaction payment with payload {}", requestPayload);
 
-        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentReferenceNumber(referenceNumber);
+        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentReferenceNumber(requestPayload.getReferenceNumber())
+                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Payment transaction not found"));
 
-        paymentTransaction.setPaymentStatus(PAYMENTSTATUS.SUCCESSFUL);
+        paymentTransaction.setPaymentChannel(CHANNEL.valueOf(requestPayload.getPaymentChannel()));
+        paymentTransaction.setPaymentStatus(PAYMENTSTATUS.valueOf(requestPayload.getPaymentStatus()));
 
-        PaymentTransaction savedPaymentTransaction = paymentTransactionRepository.save(paymentTransaction);
+        // get customer
+        Long shoppingCartId = paymentTransaction.getCustomer().getShoppingCart().getId();
+
+        savePaymentTransaction(paymentTransaction);
         log.info("Successfully updated transaction payment");
 
-        return getPaymentTransactionDto(savedPaymentTransaction);
+        // clear shopping cart
+        if (Objects.equals(requestPayload.getPaymentStatus(), PAYMENTSTATUS.SUCCESSFUL.name())) {
+            shoppingCartService.clearShoppingCart(shoppingCartId);
+        }
     }
 
-    private PaymentTransactionResponseDTO getPaymentTransactionDto(PaymentTransaction paymentTransaction) {
-        log.info("Converting payment transaction to payment transaction dto");
+    @Override
+    public PaymentTransaction validatePaymentTransaction(String refNumber) {
 
-        PaymentTransactionResponseDTO paymentTransactionResponseDTO = new PaymentTransactionResponseDTO();
-        paymentTransactionResponseDTO.setAmount(paymentTransaction.getAmount());
-        paymentTransactionResponseDTO.setPaymentReferenceNumber(paymentTransaction.getPaymentReferenceNumber());
-        paymentTransactionResponseDTO.setTransactionDate(paymentTransaction.getTransactionDate());
-        paymentTransactionResponseDTO.setCustomerName(paymentTransaction.getCustomerName());
-        paymentTransactionResponseDTO.setPaymentStatus(paymentTransaction.getPaymentStatus().toString());
-
-        return paymentTransactionResponseDTO;
-
+        return paymentTransactionRepository.findByPaymentReferenceNumber(refNumber)
+                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Transaction record Not Found"));
     }
+
 }

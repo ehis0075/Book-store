@@ -1,7 +1,7 @@
 package Online.Book.Store.payment.model;
 
-import Online.Book.Store.checkout.enums.PAYMENTMETHOD;
-import Online.Book.Store.order.model.CustomerOrder;
+import Online.Book.Store.customer.model.Customer;
+import Online.Book.Store.payment.enums.CHANNEL;
 import Online.Book.Store.payment.enums.PAYMENTSTATUS;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -29,11 +29,10 @@ public class PaymentTransaction {
     @Enumerated(EnumType.STRING)
     private PAYMENTSTATUS paymentStatus;
 
-    private String customerName;
+    @ManyToOne
+    private Customer customer;
 
     @Enumerated(EnumType.STRING)
-    private PAYMENTMETHOD paymentMethod;
+    private CHANNEL paymentChannel;
 
-    @OneToOne
-    private CustomerOrder customerOrder;
 }

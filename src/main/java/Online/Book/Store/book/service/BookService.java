@@ -4,7 +4,7 @@ import Online.Book.Store.book.dto.request.CreateUpdateBookRequest;
 import Online.Book.Store.book.dto.response.BookDTO;
 import Online.Book.Store.book.dto.response.BookListDTO;
 import Online.Book.Store.book.model.Book;
-import Online.Book.Store.order.model.OrderLine;
+import Online.Book.Store.orderLine.model.OrderLine;
 
 import java.util.List;
 
@@ -23,6 +23,8 @@ public interface BookService {
     void validateBook(List<OrderLine> books);
 
     void validateBookStockIsNotEmpty(Book book);
+
+    void validateBookStockExist(List<OrderLine> orderLineList);
 
     Book validateBookById(Long bookId);
 

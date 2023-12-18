@@ -1,4 +1,4 @@
-package Online.Book.Store.order.model;
+package Online.Book.Store.orderLine.model;
 
 
 import Online.Book.Store.book.model.Book;

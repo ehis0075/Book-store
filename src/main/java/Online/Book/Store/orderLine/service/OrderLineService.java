@@ -1,6 +1,6 @@
-package Online.Book.Store.order.service;
+package Online.Book.Store.orderLine.service;
 
-import Online.Book.Store.order.model.OrderLine;
+import Online.Book.Store.orderLine.model.OrderLine;
 
 public interface OrderLineService {
 

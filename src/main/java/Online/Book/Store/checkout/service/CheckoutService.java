@@ -1,10 +1,12 @@
 package Online.Book.Store.checkout.service;
 
-import Online.Book.Store.order.dto.CreateOrderPayload;
 import Online.Book.Store.payment.dto.PaymentRequestPayload;
 import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
+import Online.Book.Store.payment.dto.UpdatePaymentTransactionPayload;
 
 public interface CheckoutService {
 
-    PaymentTransactionResponseDTO processOrder(PaymentRequestPayload request, CreateOrderPayload payload);
+    PaymentTransactionResponseDTO checkOut(PaymentRequestPayload request);
+
+    void updateTransactionRecord(UpdatePaymentTransactionPayload request);
 }

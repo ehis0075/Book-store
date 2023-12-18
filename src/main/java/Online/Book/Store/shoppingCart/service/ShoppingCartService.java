@@ -1,6 +1,6 @@
 package Online.Book.Store.shoppingCart.service;
 
-import Online.Book.Store.order.model.OrderLine;
+import Online.Book.Store.orderLine.model.OrderLine;
 import Online.Book.Store.shoppingCart.dto.request.CreatShoppingCartDTO;
 import Online.Book.Store.shoppingCart.dto.response.ShoppingCartDTO;
 import Online.Book.Store.shoppingCart.model.ShoppingCart;

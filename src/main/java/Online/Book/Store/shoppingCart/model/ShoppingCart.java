@@ -1,6 +1,6 @@
 package Online.Book.Store.shoppingCart.model;
 
-import Online.Book.Store.order.model.OrderLine;
+import Online.Book.Store.orderLine.model.OrderLine;
 import jakarta.persistence.*;
 import lombok.Data;
 

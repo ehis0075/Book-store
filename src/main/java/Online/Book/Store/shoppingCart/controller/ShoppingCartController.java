@@ -4,7 +4,7 @@ package Online.Book.Store.shoppingCart.controller;
 import Online.Book.Store.general.dto.Response;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.general.service.GeneralService;
-import Online.Book.Store.order.model.OrderLine;
+import Online.Book.Store.orderLine.model.OrderLine;
 import Online.Book.Store.shoppingCart.dto.request.CreatShoppingCartDTO;
 import Online.Book.Store.shoppingCart.service.ShoppingCartService;
 import lombok.AllArgsConstructor;
@@ -28,17 +28,17 @@ public class ShoppingCartController {
     public Response addBookToCart(@RequestBody CreatShoppingCartDTO request) {
 
         shoppingCartService.addToCart(request);
-        return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, "successfully added to cart");
+        return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, "successfully added item to cart");
     }
 
     @PostMapping("/remove")
     public Response removeBookFromCart(@RequestBody CreatShoppingCartDTO request) {
 
         shoppingCartService.removeFromCart(request);
-        return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, "successful");
+        return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, "successfully removed item from cart");
     }
 
-    @PostMapping("/getBookList/{customerEmail}")
+    @PostMapping("/getBookList/{customerEmail}") //
     public Response getBookListFromCart(@PathVariable String customerEmail) {
 
         List<OrderLine> data = shoppingCartService.getAllItems(customerEmail);
