@@ -6,9 +6,7 @@ import lombok.Data;
 @Data
 public class CreatShoppingCartDTO {
 
-    private String bookTitle;
+    private String bookId;
 
     private String customerEmail;
-
-    private int qty;
 }

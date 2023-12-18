@@ -7,5 +7,5 @@ public interface OrderLineService {
 
     OrderLine createOrderLine(CreateOrderLinePayload request);
 
-    OrderLine findByBookTitle(String bookTitle);
+    OrderLine findByBookId(Long bookId);
 }

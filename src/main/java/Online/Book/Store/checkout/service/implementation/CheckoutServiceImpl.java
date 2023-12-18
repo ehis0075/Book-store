@@ -46,7 +46,7 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     @Override
     public PaymentTransactionResponseDTO processOrder(PaymentRequestPayload request, CreateOrderPayload orderPayload) {
-        log.info("Request to check out {}", request);
+        log.info("Request to check out {} {}", request, orderPayload);
 
         // get customer
         Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
@@ -54,10 +54,10 @@ public class CheckoutServiceImpl implements CheckoutService {
         //get BookList
         List<OrderLine> orderLineList = customer.getShoppingCart().getOrderLineList();
 
-        // validate books
+        // validate books exist
         bookService.validateBook(orderLineList);
 
-        // Create an order record in the database with information like customer ID, order date, total cost, payment details, and status.
+        // Create an order record
         OrderDTO orderDTO = orderService.createOrder(orderPayload);
 
         //initiate payment

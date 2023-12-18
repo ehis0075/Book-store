@@ -35,7 +35,6 @@ public class OrderLineServiceImpl implements OrderLineService {
                 .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
 
         OrderLine orderLine = new OrderLine();
-        orderLine.setQuantity(request.getQty());
         orderLine.setBook(book);
 
         orderLine = orderLineRepository.save(orderLine);
@@ -44,17 +43,17 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public OrderLine findByBookTitle(String bookTitle) {
-        log.info("Request to get order line with {}", bookTitle);
+    public OrderLine findByBookId(Long bookId) {
+        log.info("Request to get order line with {}", bookId);
 
-        return orderLineRepository.findByBook_Title(bookTitle);
+        return orderLineRepository.findById(bookId)
+                .orElseThrow(()  -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
     }
 
 
     public void addOrderLine(Book book, int quantity) {
 
         OrderLine orderLine = new OrderLine();
-        orderLine.setQuantity(quantity);
         orderLine.setBook(book);
 
     }
@@ -65,16 +64,16 @@ public class OrderLineServiceImpl implements OrderLineService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private int getQuantityForBook(Book book, List<OrderLine> orderLineList) {
-        // Find the corresponding OrderLine for this book in the order
-        for (OrderLine orderLine : orderLineList) {
-            if (orderLine.getBook().equals(book)) {
-                return orderLine.getQuantity(); // Return quantity from OrderLine
-            }
-        }
-        // If no OrderLine found for this book, throw an exception or log an error
-        throw new RuntimeException("OrderLine not found for book: " + book.getTitle());
-    }
+//    private int getQuantityForBook(Book book, List<OrderLine> orderLineList) {
+//        // Find the corresponding OrderLine for this book in the order
+//        for (OrderLine orderLine : orderLineList) {
+//            if (orderLine.getBook().equals(book)) {
+//                return orderLine.getQuantity(); // Return quantity from OrderLine
+//            }
+//        }
+//        // If no OrderLine found for this book, throw an exception or log an error
+//        throw new RuntimeException("OrderLine not found for book: " + book.getTitle());
+//    }
 
     private OrderLineDTO getOrderDTO(OrderLine orderLine) {
 

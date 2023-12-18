@@ -9,7 +9,5 @@ public class OrderLineDTO {
 
     private Long id;
 
-    private int quantity;
-
     private Book book;
 }

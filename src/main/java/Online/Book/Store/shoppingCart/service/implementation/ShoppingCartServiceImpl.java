@@ -42,7 +42,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public ShoppingCartDTO addToCart(CreatShoppingCartDTO request) {
         log.info("Request to add book to shopping cart {}", request);
 
-        Book book = bookService.findBookByTitle(request.getBookTitle());
+        Book book = bookService.findBookByTitle(request.getBookId());
 
         //get customer
         Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
@@ -52,7 +52,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
 
         CreateOrderLinePayload createOrderLinePayload = new CreateOrderLinePayload();
-        createOrderLinePayload.setQty(request.getQty());
         createOrderLinePayload.setBookId(book.getId());
 
         // create orderLine
@@ -65,7 +64,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         shoppingCart.add(orderLine);
 
         // deduct from book stock
-        bookService.decreaseBookStock(book, orderLine.getQuantity());
+        bookService.decreaseBookStock(book);
 
         ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
         log.info("successfully added book to shopping cart");
@@ -94,7 +93,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 //    public ShoppingCartDTO removeFromCart(CreatShoppingCartDTO request) {
 //        log.info("Request to remove book from shopping cart {}", request);
 //
-//        Book book = bookService.findBookByTitle(request.getBookTitle());
+//        Book book = bookService.findBookByTitle(request.getBookId());
 //
 //        // Retrieve the customer
 //        Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
@@ -107,16 +106,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 //        ShoppingCart shoppingCart = customer.getShoppingCart();
 //
 //        // get orderLine
-//        OrderLine orderLine = orderLineService.findByBookTitle(book.getTitle());
+//        OrderLine orderLine = orderLineService.findByBookId(book.getId());
 //
 //        List<OrderLine> orderLineList = shoppingCart.getOrderLineList();
 //
 //        log.info("removing book from shopping cart");
-////        remove(orderLineList, orderLine);
-//        shoppingCart.remove(orderLine);
+//        orderLineList.remove(orderLine);
 //
-//        // reverse book stock
-//        bookService.reverseBookStock(book, orderLine.getQuantity());
+////        // reverse book stock
+////        bookService.reverseBookStock(book, orderLine.getQuantity());
 //
 //        ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
 //        log.info("successfully removed book from shopping cart");
@@ -129,7 +127,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         log.info("Request to remove book from shopping cart {}", request);
 
         // Retrieve the book
-        Book book = bookService.findBookByTitle(request.getBookTitle());
+        Book book = bookService.findBookByTitle(request.getBookId());
 
         // Retrieve the customer
         Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
@@ -150,7 +148,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             customer.getShoppingCart().remove(orderLineToRemove);
 
             // Update book stock (assuming you have a method to increase the stock)
-            bookService.increaseBookStock(book, orderLineToRemove.getQuantity());
+            bookService.increaseBookStock(book);
 
             // Save the updated shopping cart
             ShoppingCart savedShoppingCart = shoppingCartRepository.save(customer.getShoppingCart());
@@ -203,7 +201,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         OrderLineDTO orderLineDTO = new OrderLineDTO();
         orderLineDTO.setId(orderLine.getId());
-        orderLineDTO.setQuantity(orderLine.getQuantity());
         orderLineDTO.setBook(orderLine.getBook());
         return orderLineDTO;
     }

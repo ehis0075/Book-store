@@ -70,20 +70,20 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void decreaseBookStock(Book book, int quantity) {
+    public void decreaseBookStock(Book book) {
         log.info("decreasing book stock count in database");
 
-        book.setStockCount(book.getStockCount() - quantity);
+        book.setStockCount(book.getStockCount() - 1);
 
         // Save updated book information
         bookRepository.save(book);
     }
 
     @Override
-    public void increaseBookStock(Book book, int quantity) {
+    public void increaseBookStock(Book book) {
         log.info("increasing book stock count in database");
 
-        book.setStockCount(book.getStockCount() + quantity);
+        book.setStockCount(book.getStockCount() + 1);
 
         // Save updated book information
         bookRepository.save(book);
@@ -111,16 +111,16 @@ public class BookServiceImpl implements BookService {
         return bookDTO;
     }
 
-    private int getQuantityForBook(Book book, List<OrderLine> orderLineList) {
-        // Find the corresponding OrderLine for this book in the order
-        for (OrderLine orderLine : orderLineList) {
-            if (orderLine.getBook().equals(book)) {
-                return orderLine.getQuantity(); // Return quantity from OrderLine
-            }
-        }
-        // If no OrderLine found for this book, throw an exception or log an error
-        throw new RuntimeException("OrderLine not found for book: " + book.getTitle());
-    }
+//    private int getQuantityForBook(Book book, List<OrderLine> orderLineList) {
+//        // Find the corresponding OrderLine for this book in the order
+//        for (OrderLine orderLine : orderLineList) {
+//            if (orderLine.getBook().equals(book)) {
+//                return orderLine.getQuantity(); // Return quantity from OrderLine
+//            }
+//        }
+//        // If no OrderLine found for this book, throw an exception or log an error
+//        throw new RuntimeException("OrderLine not found for book: " + book.getTitle());
+//    }
 
     public BigDecimal calculateTotalPrice(List<Book> bookList) {
         return bookList.stream()
@@ -128,17 +128,27 @@ public class BookServiceImpl implements BookService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+//    @Override
+//    public void validateBook(List<OrderLine> orderLineList) {
+//
+//        List<Long> bookIds = orderLineList.stream()
+//                .map(OrderLine::getId)
+//                .collect(Collectors.toList());
+//
+//        List<Book> bookList = bookRepository.findAllById(bookIds);
+//
+//        if (bookList.isEmpty()) {
+//            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No orderLineList found with the given IDs");
+//        }
+//    }
+
     @Override
-    public void validateBook(List<OrderLine> books) {
-
-        List<Long> bookIds = books.stream()
-                .map(OrderLine::getId)
-                .collect(Collectors.toList());
-
-        List<Book> bookList = bookRepository.findAllById(bookIds);
-
-        if (bookList.isEmpty()) {
-            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No books found with the given IDs");
+    public void validateBook(List<OrderLine> orderLineList) {
+        for (OrderLine orderLine : orderLineList) {
+            Book book = orderLine.getBook();
+            if (book == null || !bookRepository.existsById(book.getId())) {
+                throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book not found: " + book);
+            }
         }
     }
 
