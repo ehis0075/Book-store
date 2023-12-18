@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Data
-public class Order {
+public class CustomerOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

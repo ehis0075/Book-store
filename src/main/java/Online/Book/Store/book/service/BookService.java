@@ -12,9 +12,9 @@ public interface BookService {
 
     BookDTO addBook(CreateUpdateBookRequest request);
 
-    void deductBookStock(Book book, int quantity);
+    void decreaseBookStock(Book book, int quantity);
 
-    void reverseBookStock(Book book, int quantity);
+    void increaseBookStock(Book book, int quantity);
 
     void saveBook(Book book);
 

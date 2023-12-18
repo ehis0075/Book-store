@@ -1,6 +1,6 @@
 package Online.Book.Store.customer.model;
 
-import Online.Book.Store.order.model.Order;
+import Online.Book.Store.order.model.CustomerOrder;
 import Online.Book.Store.shoppingCart.model.ShoppingCart;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ public class Customer {
     private String email;
 
     @OneToMany(mappedBy = "customer")
-    private List<Order> orders;
+    private List<CustomerOrder> customerOrders;
 
     @OneToOne
     private ShoppingCart shoppingCart;

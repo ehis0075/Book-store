@@ -1,7 +1,7 @@
 package Online.Book.Store.payment.model;
 
 import Online.Book.Store.checkout.enums.PAYMENTMETHOD;
-import Online.Book.Store.order.model.Order;
+import Online.Book.Store.order.model.CustomerOrder;
 import Online.Book.Store.payment.enums.PAYMENTSTATUS;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -35,5 +35,5 @@ public class PaymentTransaction {
     private PAYMENTMETHOD paymentMethod;
 
     @OneToOne
-    private Order order;
+    private CustomerOrder customerOrder;
 }

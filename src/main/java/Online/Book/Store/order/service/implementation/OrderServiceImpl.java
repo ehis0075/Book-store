@@ -8,7 +8,7 @@ import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.order.dto.CreateOrderPayload;
 import Online.Book.Store.order.dto.OrderDTO;
 import Online.Book.Store.order.enums.ORDERSTATUS;
-import Online.Book.Store.order.model.Order;
+import Online.Book.Store.order.model.CustomerOrder;
 import Online.Book.Store.order.model.OrderLine;
 import Online.Book.Store.order.repository.OrderRepository;
 import Online.Book.Store.order.service.OrderLineService;
@@ -19,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 
@@ -38,6 +39,8 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO createOrder(CreateOrderPayload request) {
         log.info("Request to create order {}", request);
 
+        Date transactionDate = new Date();
+
         // get customer
         Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
 
@@ -47,18 +50,19 @@ public class OrderServiceImpl implements OrderService {
         // get total price for all books
         BigDecimal totalPrice = calculateTotalPrice(orderLineList);
 
-        Order order = new Order();
-        order.setCustomer(customer);
-        order.setOrderLineList(orderLineList);
-        order.setBillingAddress(request.getBillingAddress());
-        order.setPhoneNumber(request.getPhoneNumber());
-        order.setOrderstatus(ORDERSTATUS.PROCESSING);
-        order.setPaymentmethod(request.getPaymentmethod());
-        order.setTotalCost(totalPrice);
+        CustomerOrder customerOrder = new CustomerOrder();
+        customerOrder.setCustomer(customer);
+        customerOrder.setOrderLineList(orderLineList);
+        customerOrder.setBillingAddress(request.getBillingAddress());
+        customerOrder.setPhoneNumber(request.getPhoneNumber());
+        customerOrder.setOrderstatus(ORDERSTATUS.PROCESSING);
+        customerOrder.setPaymentmethod(request.getPaymentmethod());
+        customerOrder.setTotalCost(totalPrice);
+        customerOrder.setOrderDate(transactionDate);
 
-        orderRepository.save(order);
+        orderRepository.save(customerOrder);
 
-        return getOrderDTO(order);
+        return getOrderDTO(customerOrder);
     }
 
     private int getQuantityForBook(Book book, List<OrderLine> orderLineList) {
@@ -84,10 +88,10 @@ public class OrderServiceImpl implements OrderService {
         return pricePerUnit.multiply(BigDecimal.valueOf(quantity));
     }
 
-    private OrderDTO getOrderDTO(Order order) {
+    private OrderDTO getOrderDTO(CustomerOrder customerOrder) {
 
         OrderDTO orderDTO = new OrderDTO();
-        BeanUtils.copyProperties(order, orderDTO);
+        BeanUtils.copyProperties(customerOrder, orderDTO);
 
         return orderDTO;
     }

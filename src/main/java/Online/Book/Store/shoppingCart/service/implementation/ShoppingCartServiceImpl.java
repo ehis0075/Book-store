@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -64,7 +65,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         shoppingCart.add(orderLine);
 
         // deduct from book stock
-        bookService.deductBookStock(book, orderLine.getQuantity());
+        bookService.decreaseBookStock(book, orderLine.getQuantity());
 
         ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
         log.info("successfully added book to shopping cart");
@@ -89,34 +90,79 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCartDTO;
     }
 
+//    @Override
+//    public ShoppingCartDTO removeFromCart(CreatShoppingCartDTO request) {
+//        log.info("Request to remove book from shopping cart {}", request);
+//
+//        Book book = bookService.findBookByTitle(request.getBookTitle());
+//
+//        // Retrieve the customer
+//        Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
+//
+//        if (Objects.isNull(customer)) {
+//            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Customer does not exist");
+//        }
+//
+//        // Retrieve the shopping cart
+//        ShoppingCart shoppingCart = customer.getShoppingCart();
+//
+//        // get orderLine
+//        OrderLine orderLine = orderLineService.findByBookTitle(book.getTitle());
+//
+//        List<OrderLine> orderLineList = shoppingCart.getOrderLineList();
+//
+//        log.info("removing book from shopping cart");
+////        remove(orderLineList, orderLine);
+//        shoppingCart.remove(orderLine);
+//
+//        // reverse book stock
+//        bookService.reverseBookStock(book, orderLine.getQuantity());
+//
+//        ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
+//        log.info("successfully removed book from shopping cart");
+//
+//        return getShoppingCartDTO(savedShoppingCart);
+//    }
+
     @Override
     public ShoppingCartDTO removeFromCart(CreatShoppingCartDTO request) {
         log.info("Request to remove book from shopping cart {}", request);
 
+        // Retrieve the book
         Book book = bookService.findBookByTitle(request.getBookTitle());
 
-        //get customer
+        // Retrieve the customer
         Customer customer = customerRepository.findByEmail(request.getCustomerEmail());
 
-        // Retrieve the shopping cart
-        ShoppingCart shoppingCart = customer.getShoppingCart();
+        if (Objects.isNull(customer)) {
+            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Customer does not exist");
+        }
 
-        // get orderLine
-        OrderLine orderLine = orderLineService.findByBookTitle(book.getTitle());
+        // Find the corresponding OrderLine in the shopping cart
+        Optional<OrderLine> orderLineOptional = customer.getShoppingCart().getOrderLineList().stream()
+                .filter(orderLine -> orderLine.getBook().equals(book))
+                .findFirst();
 
-        List<OrderLine> orderLineList = shoppingCart.getOrderLineList();
+        if (orderLineOptional.isPresent()) {
+            OrderLine orderLineToRemove = orderLineOptional.get();
 
-        log.info("removing book from shopping cart");
-        remove(orderLineList, orderLine);
+            // Remove the OrderLine from the shopping cart
+            customer.getShoppingCart().remove(orderLineToRemove);
 
-        // reverse book stock
-        bookService.reverseBookStock(book, orderLine.getQuantity());
+            // Update book stock (assuming you have a method to increase the stock)
+            bookService.increaseBookStock(book, orderLineToRemove.getQuantity());
 
-        ShoppingCart savedShoppingCart = shoppingCartRepository.save(shoppingCart);
-        log.info("successfully removed book from shopping cart");
+            // Save the updated shopping cart
+            ShoppingCart savedShoppingCart = shoppingCartRepository.save(customer.getShoppingCart());
 
-        return getShoppingCartDTO(savedShoppingCart);
+            log.info("Successfully removed book from shopping cart");
+
+            return getShoppingCartDTO(savedShoppingCart);
+        } else {
+            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book not found in the shopping cart");
+        }
     }
+
 
     @Override
     public List<OrderLine> getAllItems(String customerEmail) {

@@ -70,8 +70,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void deductBookStock(Book book, int quantity) {
-        log.info("deducting book's stock count in database");
+    public void decreaseBookStock(Book book, int quantity) {
+        log.info("decreasing book stock count in database");
 
         book.setStockCount(book.getStockCount() - quantity);
 
@@ -80,8 +80,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void reverseBookStock(Book book, int quantity) {
-        log.info("reversing book's stock count in database");
+    public void increaseBookStock(Book book, int quantity) {
+        log.info("increasing book stock count in database");
 
         book.setStockCount(book.getStockCount() + quantity);
 
