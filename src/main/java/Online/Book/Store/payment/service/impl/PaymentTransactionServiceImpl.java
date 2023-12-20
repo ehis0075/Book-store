@@ -5,8 +5,8 @@ import Online.Book.Store.customer.service.CustomerService;
 import Online.Book.Store.exception.GeneralException;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
 import Online.Book.Store.payment.dto.*;
-import Online.Book.Store.payment.enums.CHANNEL;
-import Online.Book.Store.payment.enums.PAYMENTSTATUS;
+import Online.Book.Store.payment.enums.Channel;
+import Online.Book.Store.payment.enums.PaymentStatus;
 import Online.Book.Store.payment.model.PaymentTransaction;
 import Online.Book.Store.payment.repository.PaymentTransactionRepository;
 import Online.Book.Store.payment.service.PaymentTransactionService;
@@ -36,7 +36,7 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 
     private final ShoppingCartService shoppingCartService;
     private static final String PAYMENT_GATEWAY_URL = "gatewayUrl";
-    private static final PAYMENTSTATUS PAYMENT_STATUS = PAYMENTSTATUS.SUCCESSFUL;
+    private static final PaymentStatus PAYMENT_STATUS = PaymentStatus.SUCCESSFUL;
 
     @Override
     public PaymentTransactionResponseDTO createPaymentTransaction(PaymentRequestPayload request) {
@@ -45,14 +45,14 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
         String referenceNumber = "REF" + GeneralUtil.generateUniqueReferenceNumber(new Date());
 
         // get customer
-        Customer customer = customerService.findCustomerByEmail(request.getCustomerEmail());
+        Customer customer = customerService.findCustomerById(request.getCustomerId());
 
         PaymentTransaction paymentTransaction = new PaymentTransaction();
         paymentTransaction.setPaymentReferenceNumber(referenceNumber);
         paymentTransaction.setTransactionDate(new Date());
         paymentTransaction.setAmount(request.getAmount());
         paymentTransaction.setCustomer(customer);
-        paymentTransaction.setPaymentStatus(PAYMENTSTATUS.PENDING);
+        paymentTransaction.setPaymentStatus(PaymentStatus.PENDING);
 
         savePaymentTransaction(paymentTransaction);
 
@@ -70,8 +70,8 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentReferenceNumber(requestPayload.getReferenceNumber())
                 .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Payment transaction not found"));
 
-        paymentTransaction.setPaymentChannel(CHANNEL.valueOf(requestPayload.getPaymentChannel()));
-        paymentTransaction.setPaymentStatus(PAYMENTSTATUS.valueOf(requestPayload.getPaymentStatus()));
+        paymentTransaction.setPaymentChannel(Channel.valueOf(requestPayload.getPaymentChannel()));
+        paymentTransaction.setPaymentStatus(PaymentStatus.valueOf(requestPayload.getPaymentStatus()));
 
         // get customer
         Long shoppingCartId = paymentTransaction.getCustomer().getShoppingCart().getId();
@@ -80,7 +80,7 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
         log.info("Successfully updated transaction payment");
 
         // clear shopping cart
-        if (Objects.equals(requestPayload.getPaymentStatus(), PAYMENTSTATUS.SUCCESSFUL.name())) {
+        if (Objects.equals(requestPayload.getPaymentStatus(), PaymentStatus.SUCCESSFUL.name())) {
             shoppingCartService.clearShoppingCart(shoppingCartId);
         }
     }

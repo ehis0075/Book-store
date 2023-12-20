@@ -15,7 +15,7 @@ public interface ShoppingCartService {
 
     void removeFromCart(CreatShoppingCartDTO request);
 
-    List<OrderLine> getAllItems(String customerEmail);
+    List<OrderLine> getAllItems(Long customerId);
 
     ShoppingCart save(ShoppingCart shoppingCart);
 

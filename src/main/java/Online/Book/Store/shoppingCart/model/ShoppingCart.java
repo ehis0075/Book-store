@@ -14,6 +14,8 @@ public class ShoppingCart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     @OneToMany
     private List<OrderLine> orderLineList;
 

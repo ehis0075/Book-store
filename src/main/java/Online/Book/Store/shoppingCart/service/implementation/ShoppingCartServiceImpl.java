@@ -44,7 +44,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Book book = bookService.findBookById(request.getBookId());
 
         //get customer
-        Customer customer = customerService.findCustomerByEmail(request.getCustomerEmail());
+        Customer customer = customerService.findCustomerById(request.getCustomerId());
 
         // validate that Book stock is available
         bookService.validateBookStockIsNotEmpty(book);
@@ -87,7 +87,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Book book = bookService.findBookById(request.getBookId());
 
         // Retrieve the customer
-        Customer customer = customerService.findCustomerByEmail(request.getCustomerEmail());
+        Customer customer = customerService.findCustomerById(request.getCustomerId());
 
         if (Objects.isNull(customer)) {
             throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Customer does not exist");
@@ -115,14 +115,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public List<OrderLine> getAllItems(String customerEmail) {
-        log.info("Request to get all items in a shopping cart for {}", customerEmail);
+    public List<OrderLine> getAllItems(Long customerId) {
+        log.info("Request to get all items in a shopping cart for {}", customerId);
 
         //get customer
-        Customer customer = customerService.findCustomerByEmail(customerEmail);
+        Customer customer = customerService.findCustomerById(customerId);
 
         // Retrieve the book list from the shopping cart
-
         return customer.getShoppingCart().getOrderLineList();
     }
 
@@ -139,7 +138,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         ShoppingCart shoppingCart = shoppingCartRepository.findById(shoppingCartId)
                 .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Shopping cart Not found"));
 
-        shoppingCart.getOrderLineList().clear();
+        List<OrderLine> orderLineList = shoppingCart.getOrderLineList();
+
+        orderLineService.deleteOrderLine(orderLineList);
     }
 
     private List<OrderLineDTO> getOrderLineDTOS(List<OrderLine> orderLineList) {

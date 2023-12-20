@@ -38,10 +38,10 @@ public class ShoppingCartController {
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, "successfully removed item from cart");
     }
 
-    @PostMapping("/getCartItems/{customerEmail}") //
-    public Response getCartItems(@PathVariable String customerEmail) {
+    @PostMapping("/getCartItems/{customerId}") //
+    public Response getCartItems(@PathVariable Long customerId) {
 
-        List<OrderLine> data = shoppingCartService.getAllItems(customerEmail);
+        List<OrderLine> data = shoppingCartService.getAllItems(customerId);
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
     }
 

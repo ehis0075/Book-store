@@ -4,11 +4,10 @@ import Online.Book.Store.checkout.service.CheckoutService;
 import Online.Book.Store.customer.model.Customer;
 import Online.Book.Store.customer.service.CustomerService;
 import Online.Book.Store.orderLine.model.OrderLine;
-import Online.Book.Store.payment.dto.GetPaymentTransactionRecordRequest;
 import Online.Book.Store.payment.dto.PaymentRequestPayload;
 import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
 import Online.Book.Store.payment.dto.UpdatePaymentTransactionPayload;
-import Online.Book.Store.payment.enums.PAYMENTSTATUS;
+import Online.Book.Store.payment.enums.PaymentStatus;
 import Online.Book.Store.payment.service.PaymentTransactionService;
 import Online.Book.Store.shoppingCart.service.ShoppingCartService;
 import lombok.AllArgsConstructor;
@@ -35,7 +34,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         log.info("Request to check out {}", request);
 
         // get customer
-        Customer customer = customerService.findCustomerByEmail(request.getCustomerEmail());
+        Customer customer = customerService.findCustomerById(request.getCustomerId());
 
         //get order list
         List<OrderLine> orderLineList = customer.getShoppingCart().getOrderLineList();
@@ -56,7 +55,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         // get customer
         Customer customer = paymentTransactionService.validatePaymentTransaction(request.getReferenceNumber()).getCustomer();
 
-        if (Objects.equals(request.getPaymentStatus(), PAYMENTSTATUS.SUCCESSFUL.name())) {
+        if (Objects.equals(request.getPaymentStatus(), PaymentStatus.SUCCESSFUL.name())) {
 
             //clear shopping cart
             shoppingCartService.clearShoppingCart(customer.getShoppingCart().getId());

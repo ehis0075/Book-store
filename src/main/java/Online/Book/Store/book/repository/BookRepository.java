@@ -1,6 +1,6 @@
 package Online.Book.Store.book.repository;
 
-import Online.Book.Store.book.enums.GENRE;
+import Online.Book.Store.book.enums.Genre;
 import Online.Book.Store.book.model.Book;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +24,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Page<Book> searchByPublicationYear(@Param("year") String publicationYear, Pageable pageable);
 
     @Query("SELECT b FROM Book b WHERE b.genre = :genre")
-    Page<Book> searchByGenre(@Param("genre") GENRE genre, Pageable pageable);
+    Page<Book> searchByGenre(@Param("genre") Genre genre, Pageable pageable);
 
 
 }

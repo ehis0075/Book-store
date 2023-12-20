@@ -1,6 +1,6 @@
 package Online.Book.Store.util;
 
-import Online.Book.Store.book.enums.GENRE;
+import Online.Book.Store.book.enums.Genre;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -91,8 +91,8 @@ public class GeneralUtil {
         return String.format("%03d-%d-%05d-%03d-%02d", segment1, segment2, segment3, segment4, segment5);
     }
 
-    public static GENRE getRandomGenre() {
-        GENRE[] genres = GENRE.values();
+    public static Genre getRandomGenre() {
+        Genre[] genres = Genre.values();
         Random random = new Random();
         return genres[random.nextInt(genres.length)];
     }

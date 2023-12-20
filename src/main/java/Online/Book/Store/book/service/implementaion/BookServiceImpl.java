@@ -1,5 +1,8 @@
 package Online.Book.Store.book.service.implementaion;
 
+import Online.Book.Store.author.model.Author;
+import Online.Book.Store.author.service.AuthorService;
+import Online.Book.Store.book.dto.request.CreateUpdateBookRequest;
 import Online.Book.Store.book.dto.request.SearchBookRequestDTO;
 import Online.Book.Store.book.dto.response.BookDTO;
 import Online.Book.Store.book.dto.response.BookListDTO;
@@ -18,6 +21,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +44,28 @@ public class BookServiceImpl implements BookService {
     private EntityManager em;
 
     private final BookRepository bookRepository;
+
+    private final AuthorService authorService;
+
+    @Override
+    public BookDTO createBook(CreateUpdateBookRequest request) {
+        log.info("Request to create book {}", request);
+
+        Author author = authorService.getAuthorById(request.getAuthorId());
+
+        Book book = new Book();
+        book.setTitle(request.getTitle());
+        book.setGenre(request.getGenre());
+        book.setPublicationYear(request.getPublicationYear());
+        book.setPrice(request.getPrice());
+        book.setAuthor(author);
+        book.setStockCount(request.getStockCount());
+        book.setIsbnCode(GeneralUtil.generateUniqueISBNNumber());
+
+        Book savedBook = bookRepository.save(book);
+
+        return getBookDTO(savedBook);
+    }
 
     @Override
     public void validateBookStockIsNotEmpty(Book book) {
@@ -138,6 +164,13 @@ public class BookServiceImpl implements BookService {
         query.setMaxResults(paged.getPageSize());
 
         return new PageImpl<>(query.getResultList(), paged, totalRows);
+    }
+
+    public static BookDTO getBookDTO(Book book) {
+        BookDTO bookDTO = new BookDTO();
+        BeanUtils.copyProperties(book, bookDTO);
+
+        return bookDTO;
     }
 
 }

@@ -1,6 +1,6 @@
 package Online.Book.Store.book.dto.request;
 
-import Online.Book.Store.book.enums.GENRE;
+import Online.Book.Store.book.enums.Genre;
 import Online.Book.Store.general.dto.PageableRequestDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +12,7 @@ public class SearchBookRequestDTO extends PageableRequestDTO {
 
     private String title;
 
-    private GENRE genre;
+    private Genre genre;
 
     private String isbnCode;
 

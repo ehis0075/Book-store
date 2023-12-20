@@ -20,6 +20,7 @@ public class Customer {
 
     private String lastName;
 
+    @Column(unique = true)
     private String email;
 
     @OneToOne()

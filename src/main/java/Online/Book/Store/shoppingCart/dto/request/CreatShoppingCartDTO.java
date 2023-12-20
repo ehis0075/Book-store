@@ -8,5 +8,5 @@ public class CreatShoppingCartDTO {
 
     private Long bookId;
 
-    private String customerEmail;
+    private Long customerId;
 }

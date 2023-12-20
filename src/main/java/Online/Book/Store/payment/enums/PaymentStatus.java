@@ -1,5 +1,5 @@
 package Online.Book.Store.payment.enums;
 
-public enum PAYMENTSTATUS {
+public enum PaymentStatus {
     PENDING, SUCCESSFUL, FAILED
 }

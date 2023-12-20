@@ -1,6 +1,7 @@
 package Online.Book.Store.book.model;
 
-import Online.Book.Store.book.enums.GENRE;
+import Online.Book.Store.author.model.Author;
+import Online.Book.Store.book.enums.Genre;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,18 +22,20 @@ public class Book {
     private String title;
 
     @Enumerated(EnumType.STRING)
-    private GENRE genre;
+    private Genre genre;
 
+    @Column(name = "isbn_code")
     private String isbnCode;
 
-    private String author;
+    @OneToOne
+    private Author author;
 
+    @Column(name = "publication_year")
     private String publicationYear;
 
     private BigDecimal price;
 
+    @Column(name = "stock_count")
     private int stockCount;
 
-    public Book(String s, GENRE genre, String number, String s1, String number1, BigDecimal bigDecimal) {
-    }
 }

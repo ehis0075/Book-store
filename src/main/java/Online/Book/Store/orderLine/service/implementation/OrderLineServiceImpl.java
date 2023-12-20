@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -40,21 +39,15 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public OrderLine findOrderLineByBookId(Long bookId) {
-        log.info("Request to get order line with {}", bookId);
-
-        return orderLineRepository.findById(bookId)
-                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
-    }
-
-    public BigDecimal calculateTotalPrice(List<Book> bookList) {
-        return bookList.stream()
-                .map(Book::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
     public OrderLine saveOrderLine(OrderLine orderLine) {
 
         return orderLineRepository.save(orderLine);
+    }
+
+    @Override
+    public void deleteOrderLine(List<OrderLine> orderLineList) {
+        log.info("Request to delete order line {}", orderLineList);
+
+         orderLineRepository.deleteAll(orderLineList);
     }
 }

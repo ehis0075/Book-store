@@ -50,9 +50,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer findCustomerByEmail(String email) {
+    public Customer findCustomerById(Long id) {
 
-        return customerRepository.findByEmail(email)
+        return customerRepository.findById(id)
                 .orElseThrow(
                         () -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Customer does not exist"));
     }

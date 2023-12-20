@@ -1,6 +1,6 @@
 package Online.Book.Store.payment.repository;
 
-import Online.Book.Store.payment.enums.PAYMENTSTATUS;
+import Online.Book.Store.payment.enums.PaymentStatus;
 import Online.Book.Store.payment.model.PaymentTransaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +12,6 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
 
     Optional<PaymentTransaction> findByPaymentReferenceNumber(String paymentReferenceNumber);
 
-    Page<PaymentTransaction> findByPaymentStatusAndCustomerEmail(PAYMENTSTATUS status, String customerEmail, Pageable pageable);
+    Page<PaymentTransaction> findByPaymentStatusAndCustomerEmail(PaymentStatus status, String customerEmail, Pageable pageable);
 
 }

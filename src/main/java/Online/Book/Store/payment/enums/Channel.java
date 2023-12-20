@@ -1,5 +1,5 @@
 package Online.Book.Store.payment.enums;
 
-public enum CHANNEL {
+public enum Channel {
     WEB, USSD, TRANSFER
 }

@@ -1,9 +1,8 @@
 package Online.Book.Store.payment.dto;
 
 import Online.Book.Store.customer.dto.CustomerDTO;
-import Online.Book.Store.customer.model.Customer;
-import Online.Book.Store.payment.enums.CHANNEL;
-import Online.Book.Store.payment.enums.PAYMENTSTATUS;
+import Online.Book.Store.payment.enums.Channel;
+import Online.Book.Store.payment.enums.PaymentStatus;
 import Online.Book.Store.util.JsonDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
@@ -27,10 +26,10 @@ public class PaymentTransactionDTO {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date transactionDate;
 
-    private PAYMENTSTATUS paymentStatus;
+    private PaymentStatus paymentStatus;
 
     private CustomerDTO customerDTO;
 
-    private CHANNEL paymentChannel;
+    private Channel paymentChannel;
 
 }

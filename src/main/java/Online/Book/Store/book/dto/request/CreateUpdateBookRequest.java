@@ -1,6 +1,6 @@
 package Online.Book.Store.book.dto.request;
 
-import Online.Book.Store.book.enums.GENRE;
+import Online.Book.Store.book.enums.Genre;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -11,12 +11,13 @@ public class CreateUpdateBookRequest {
 
     private String title;
 
-    private GENRE genre;
+    private Genre genre;
 
-    private String author;
+    private Long authorId;
 
     private String publicationYear;
 
-    private BigDecimal amount;
+    private BigDecimal price;
 
+    private int stockCount;
 }

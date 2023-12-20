@@ -1,7 +1,7 @@
 package Online.Book.Store.book.dto.response;
 
 import Online.Book.Store.book.model.Book;
-import Online.Book.Store.book.enums.GENRE;
+import Online.Book.Store.book.enums.Genre;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -14,7 +14,7 @@ public class BookDTO {
 
     private String title;
 
-    private GENRE genre;
+    private Genre genre;
 
     private String isbnCode;
 
