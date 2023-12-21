@@ -4,6 +4,8 @@ import Online.Book.Store.customer.model.Customer;
 import Online.Book.Store.customer.service.CustomerService;
 import Online.Book.Store.exception.GeneralException;
 import Online.Book.Store.general.enums.ResponseCodeAndMessage;
+import Online.Book.Store.orders.model.Orders;
+import Online.Book.Store.orders.service.OrderService;
 import Online.Book.Store.payment.dto.*;
 import Online.Book.Store.payment.enums.Channel;
 import Online.Book.Store.payment.enums.PaymentStatus;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -30,29 +33,37 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PaymentTransactionServiceImpl implements PaymentTransactionService {
 
-    private final PaymentTransactionRepository paymentTransactionRepository;
+    private static final String PAYMENT_GATEWAY_URL = "gatewayUrl";
+    private static final PaymentStatus PAYMENT_STATUS = PaymentStatus.SUCCESSFUL;
 
     private final CustomerService customerService;
 
     private final ShoppingCartService shoppingCartService;
-    private static final String PAYMENT_GATEWAY_URL = "gatewayUrl";
-    private static final PaymentStatus PAYMENT_STATUS = PaymentStatus.SUCCESSFUL;
+
+    private final OrderService orderService;
+
+    private final PaymentTransactionRepository paymentTransactionRepository;
+
 
     @Override
-    public PaymentTransactionResponseDTO createPaymentTransaction(PaymentRequestPayload request) {
-        log.info("Request to create transaction record with payload : {} ", request);
+    public PaymentTransactionResponseDTO createPaymentTransaction(Long customerId, BigDecimal totalAmount, Long orderId) {
+        log.info("Request to create transaction record with payload : {} {} {} ", customerId, totalAmount, orderId);
 
         String referenceNumber = "REF" + GeneralUtil.generateUniqueReferenceNumber(new Date());
 
         // get customer
-        Customer customer = customerService.findCustomerById(request.getCustomerId());
+        Customer customer = customerService.findCustomerById(customerId);
+
+        //get saved Order
+        Orders orders = orderService.findOrderById(orderId);
 
         PaymentTransaction paymentTransaction = new PaymentTransaction();
         paymentTransaction.setPaymentReferenceNumber(referenceNumber);
         paymentTransaction.setTransactionDate(new Date());
-        paymentTransaction.setAmount(request.getAmount());
+        paymentTransaction.setAmount(totalAmount);
         paymentTransaction.setCustomer(customer);
         paymentTransaction.setPaymentStatus(PaymentStatus.PENDING);
+        paymentTransaction.setOrders(orders);
 
         savePaymentTransaction(paymentTransaction);
 
@@ -93,12 +104,23 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
     }
 
     @Override
-    public PaymentTransactionListDTO getPaymentTransactionRecord(String customerEmail, int pageNumber, int pageSize) {
-        log.info("Request to get payment transaction records for {}", customerEmail);
+    public PaymentTransactionListDTO getPaymentPurchasedRecord(Long customerId, int pageNumber, int pageSize) {
+        log.info("Request to get all purchased payment transaction records for {}", customerId);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        Page<PaymentTransaction> transactionPage = paymentTransactionRepository.findByPaymentStatusAndCustomerEmail(PAYMENT_STATUS, customerEmail, pageable);
+        Page<PaymentTransaction> transactionPage = paymentTransactionRepository.findByPaymentStatusAndCustomer_Id(PAYMENT_STATUS, customerId, pageable);
+
+        return getPaymentTransactionListDTO(transactionPage);
+    }
+
+    @Override
+    public PaymentTransactionListDTO getAllPaymentRecord(int pageNumber, int pageSize) {
+        log.info("Request to get all payment transaction records {} {}", pageNumber, pageSize);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<PaymentTransaction> transactionPage = paymentTransactionRepository.findAll(pageable);
 
         return getPaymentTransactionListDTO(transactionPage);
     }

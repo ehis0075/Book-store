@@ -1,0 +1,7 @@
+-- INSERT INTO public.customer(
+--     id, email, first_name, last_name, shopping_cart_id)
+-- VALUES (1, 'ehis@gmail.com', 'ehis', 'jude', 1);
+-- VALUES (2, 'ugo@gmail.com', 'ugo', 'oni', 2);
+-- VALUES (3, 'ehis@gmail.com', 'ehis', 'jude', 3);
+-- VALUES (4, 'ehis@gmail.com', 'ehis', 'jude', 4);
+-- VALUES (5, 'uzo@gmail.com', 'uzo', 'tade', 5);

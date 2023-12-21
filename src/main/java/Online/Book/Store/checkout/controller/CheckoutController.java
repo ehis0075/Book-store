@@ -9,10 +9,7 @@ import Online.Book.Store.payment.dto.PaymentRequestPayload;
 import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
 import Online.Book.Store.payment.dto.UpdatePaymentTransactionPayload;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
@@ -23,10 +20,10 @@ public class CheckoutController {
 
     private final GeneralService generalService;
 
-    @PostMapping("/checkOut")
-    public Response checkOut(@RequestBody PaymentRequestPayload request) {
+    @PostMapping("/checkOut/{customerId}")
+    public Response checkOut(@PathVariable Long customerId) {
 
-        PaymentTransactionResponseDTO data = checkoutService.checkOut(request);
+        PaymentTransactionResponseDTO data = checkoutService.checkOut(customerId);
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
     }
 

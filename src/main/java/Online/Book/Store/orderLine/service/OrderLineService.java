@@ -1,14 +1,18 @@
 package Online.Book.Store.orderLine.service;
 
+import Online.Book.Store.book.model.Book;
+import Online.Book.Store.orderLine.dto.OrderLineDTO;
 import Online.Book.Store.orderLine.model.OrderLine;
 
-import java.util.List;
+import java.util.Set;
 
 public interface OrderLineService {
 
-    OrderLine createOrderLine(Long bookId);
+    OrderLine createOrderLine(Book bookId, Set<OrderLine> orderLineList);
 
-    OrderLine saveOrderLine(OrderLine orderLine);
+    OrderLineDTO getItemsDTO(OrderLine item);
 
-    void deleteOrderLine(List<OrderLine> orderLineList);
+    void saveItem(OrderLine orderLine);
+
+    void deleteItem(Set<OrderLine> orderLineList);
 }

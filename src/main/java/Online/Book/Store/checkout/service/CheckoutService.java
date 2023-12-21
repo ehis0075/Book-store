@@ -6,7 +6,7 @@ import Online.Book.Store.payment.dto.UpdatePaymentTransactionPayload;
 
 public interface CheckoutService {
 
-    PaymentTransactionResponseDTO checkOut(PaymentRequestPayload request);
+    PaymentTransactionResponseDTO checkOut(Long customerId);
 
     void updateTransactionRecord(UpdatePaymentTransactionPayload request);
 }

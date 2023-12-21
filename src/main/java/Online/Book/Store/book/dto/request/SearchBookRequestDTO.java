@@ -14,9 +14,7 @@ public class SearchBookRequestDTO extends PageableRequestDTO {
 
     private Genre genre;
 
-    private String isbnCode;
-
-    private String author;
+    private String authorName;
 
     private String publicationYear;
 }

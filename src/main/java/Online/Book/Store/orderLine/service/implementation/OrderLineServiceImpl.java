@@ -1,9 +1,7 @@
 package Online.Book.Store.orderLine.service.implementation;
 
 import Online.Book.Store.book.model.Book;
-import Online.Book.Store.book.repository.BookRepository;
-import Online.Book.Store.exception.GeneralException;
-import Online.Book.Store.general.enums.ResponseCodeAndMessage;
+import Online.Book.Store.orderLine.dto.OrderLineDTO;
 import Online.Book.Store.orderLine.model.OrderLine;
 import Online.Book.Store.orderLine.repository.OrderLineRepository;
 import Online.Book.Store.orderLine.service.OrderLineService;
@@ -11,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Set;
 
 
 @Slf4j
@@ -21,33 +19,38 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     private final OrderLineRepository orderLineRepository;
 
-    private final BookRepository bookRepository;
-
     @Override
-    public OrderLine createOrderLine(Long bookId) {
-        log.info("Request to create order line for book with ID{}", bookId);
+    public OrderLine createOrderLine(Book book, Set<OrderLine> orderLineList) {
+        log.info("Request to create item for book {} {}", book, orderLineList);
 
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given book ID"));
+        OrderLine newOrderLine = new OrderLine();
+        newOrderLine.setBook(book);
+        newOrderLine.setCount(1);
+        orderLineList.add(newOrderLine);
 
-        OrderLine orderLine = new OrderLine();
-        orderLine.setBook(book);
-
-        orderLine = saveOrderLine(orderLine);
-
-        return orderLine;
+        return orderLineRepository.save(newOrderLine);
     }
 
     @Override
-    public OrderLine saveOrderLine(OrderLine orderLine) {
+    public OrderLineDTO getItemsDTO(OrderLine item) {
 
-        return orderLineRepository.save(orderLine);
+        OrderLineDTO orderLineDTO = new OrderLineDTO();
+        orderLineDTO.setId(item.getId());
+        orderLineDTO.setBook(item.getBook());
+
+        return orderLineDTO;
     }
 
     @Override
-    public void deleteOrderLine(List<OrderLine> orderLineList) {
-        log.info("Request to delete order line {}", orderLineList);
+    public void saveItem(OrderLine orderLine) {
 
-         orderLineRepository.deleteAll(orderLineList);
+        orderLineRepository.save(orderLine);
+    }
+
+    @Override
+    public void deleteItem(Set<OrderLine> orderLineList) {
+        log.info("Request to delete item {}", orderLineList);
+
+        orderLineRepository.deleteAll(orderLineList);
     }
 }

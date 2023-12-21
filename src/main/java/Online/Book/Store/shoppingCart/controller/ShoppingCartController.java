@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Set;
 
 
 @Slf4j
@@ -41,7 +41,7 @@ public class ShoppingCartController {
     @PostMapping("/getCartItems/{customerId}") //
     public Response getCartItems(@PathVariable Long customerId) {
 
-        List<OrderLine> data = shoppingCartService.getAllItems(customerId);
+        Set<OrderLine> data = shoppingCartService.getAllItems(customerId);
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, data);
     }
 

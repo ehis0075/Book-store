@@ -18,9 +18,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -49,14 +48,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         // validate that Book stock is available
         bookService.validateBookStockIsNotEmpty(book);
 
-        // create orderLine
-        OrderLine orderLine = orderLineService.createOrderLine(book.getId());
-
         // Retrieve the shopping cart
         ShoppingCart shoppingCart = customer.getShoppingCart();
 
+        // get order line list
+        Set<OrderLine> orderLineList = shoppingCart.getOrderLineList();
+
         log.info("adding book to shopping cart");
-        shoppingCart.getOrderLineList().add(orderLine);
+        addOrUpdateBook(book, orderLineList);
 
         shoppingCartRepository.save(shoppingCart);
         log.info("successfully added book to shopping cart");
@@ -71,7 +70,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             orderLineDTO.setBook(orderLine.getBook());
         }
 
-        List<OrderLineDTO> orderLineDTOS = getOrderLineDTOS(shoppingCart.getOrderLineList());
+        Set<OrderLineDTO> orderLineDTOS = getOrderLineDTOS(shoppingCart.getOrderLineList());
 
         ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO();
         shoppingCartDTO.setOrderLineDTOS(orderLineDTOS);
@@ -89,33 +88,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         // Retrieve the customer
         Customer customer = customerService.findCustomerById(request.getCustomerId());
 
-        if (Objects.isNull(customer)) {
-            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Customer does not exist");
-        }
+        // Retrieve the shopping cart
+        Set<OrderLine> orderLineList = customer.getShoppingCart().getOrderLineList();
 
-        // Find the corresponding OrderLine in the shopping cart
-        Optional<OrderLine> orderLineOptional = customer.getShoppingCart().getOrderLineList().stream()
-                .filter(orderLine -> orderLine.getBook().equals(book))
-                .findFirst();
+        // Use the removeBook method
+        removeBook(book, orderLineList);
 
-        if (orderLineOptional.isPresent()) {
-            OrderLine orderLineToRemove = orderLineOptional.get();
-
-            // Remove the OrderLine from the shopping cart
-            customer.getShoppingCart().remove(orderLineToRemove);
-
-            // Save the updated shopping cart
-            shoppingCartRepository.save(customer.getShoppingCart());
-
-            log.info("Successfully removed book from shopping cart");
-
-        } else {
-            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Book not found in the shopping cart");
-        }
+        // Save the updated shopping cart
+        shoppingCartRepository.save(customer.getShoppingCart());
+        log.info("Successfully removed book from shopping cart");
     }
 
     @Override
-    public List<OrderLine> getAllItems(Long customerId) {
+    public Set<OrderLine> getAllItems(Long customerId) {
         log.info("Request to get all items in a shopping cart for {}", customerId);
 
         //get customer
@@ -138,15 +123,62 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         ShoppingCart shoppingCart = shoppingCartRepository.findById(shoppingCartId)
                 .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "Shopping cart Not found"));
 
-        List<OrderLine> orderLineList = shoppingCart.getOrderLineList();
+        Set<OrderLine> orderLineList = shoppingCart.getOrderLineList();
 
-        orderLineService.deleteOrderLine(orderLineList);
+        // Clear the orderLineList from the shopping cart
+        orderLineList.clear();
+
+        //update the ShoppingCart entity in the database
+        shoppingCartRepository.save(shoppingCart);
     }
 
-    private List<OrderLineDTO> getOrderLineDTOS(List<OrderLine> orderLineList) {
+
+    // Add this method to handle book addition or count update
+    public void addOrUpdateBook(Book book, Set<OrderLine> orderLineList) {
+
+        // Check if the book is already in the orderLineList
+        Optional<OrderLine> existingOrderLine = orderLineList.stream()
+                .filter(orderLine -> orderLine.getBook().equals(book))
+                .findFirst();
+
+        if (existingOrderLine.isPresent()) {
+            // If the book exists, increase the count by 1
+            existingOrderLine.get().setCount(existingOrderLine.get().getCount() + 1);
+
+            orderLineService.saveItem(existingOrderLine.get());
+        } else {
+
+            // If the book does not exist, create a new OrderLine
+            orderLineService.createOrderLine(book, orderLineList);
+        }
+    }
+
+    // Method to remove a book and update the count
+    public void removeBook(Book book, Set<OrderLine> orderLineList) {
+        // Check if the book is in the orderLineList
+        Optional<OrderLine> existingOrderLine = orderLineList.stream()
+                .filter(orderLine -> orderLine.getBook().equals(book))
+                .findFirst();
+
+        if (existingOrderLine.isPresent()) {
+            // If the book exists, decrease the count by 1
+            OrderLine orderLine = existingOrderLine.get();
+            int newCount = orderLine.getCount() - 1;
+
+            if (newCount > 0) {
+                orderLine.setCount(newCount);
+            } else {
+                // If the count becomes zero, remove the OrderLine from the list
+                orderLineList.remove(orderLine);
+            }
+        }
+        orderLineService.saveItem(existingOrderLine.get());
+    }
+
+    private Set<OrderLineDTO> getOrderLineDTOS(Set<OrderLine> orderLineList) {
         return orderLineList.stream()
                 .map(this::convertToOrderLineDTO)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     private OrderLineDTO convertToOrderLineDTO(OrderLine orderLine) {

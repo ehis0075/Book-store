@@ -23,7 +23,7 @@ public class Customer {
     @Column(unique = true)
     private String email;
 
-    @OneToOne()
+    @OneToOne
     private ShoppingCart shoppingCart;
 
 }

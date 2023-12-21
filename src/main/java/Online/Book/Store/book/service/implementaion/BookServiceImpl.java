@@ -81,13 +81,8 @@ public class BookServiceImpl implements BookService {
     public Book findBookById(Long bookId) {
         log.info("Request to get a book with title {}", bookId);
 
-        Book book = bookRepository.findById(bookId)
+        return bookRepository.findById(bookId)
                 .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given ID"));
-
-        if (Objects.isNull(book)) {
-            throw new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No book found with the given title");
-        }
-        return book;
     }
 
     @Override
@@ -135,8 +130,8 @@ public class BookServiceImpl implements BookService {
             predicates.add(cb.like(cb.lower(root.get("publicationYear")), '%' + request.getPublicationYear().toLowerCase(Locale.ROOT) + '%'));
         }
 
-        if (valid(request.getAuthor())) {
-            predicates.add(cb.equal(root.get("author"), request.getAuthor().toLowerCase(Locale.ROOT) + '%'));
+        if (valid(request.getAuthorName())) {
+            predicates.add(cb.equal(root.get("authorName"), request.getAuthorName().toLowerCase(Locale.ROOT) + '%'));
         }
 
         if (Objects.nonNull(request.getGenre())) {

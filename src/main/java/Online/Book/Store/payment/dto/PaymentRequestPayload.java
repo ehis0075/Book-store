@@ -9,6 +9,4 @@ public class PaymentRequestPayload {
 
     private Long customerId;
 
-    private BigDecimal amount;
-
 }

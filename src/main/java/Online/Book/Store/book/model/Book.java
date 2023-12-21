@@ -38,4 +38,6 @@ public class Book {
     @Column(name = "stock_count")
     private int stockCount;
 
+    public Book(String title, Genre genre, String isbn123, String author, String number, BigDecimal ten) {
+    }
 }

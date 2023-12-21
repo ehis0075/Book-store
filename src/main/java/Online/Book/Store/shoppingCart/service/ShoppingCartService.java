@@ -5,7 +5,7 @@ import Online.Book.Store.shoppingCart.dto.request.CreatShoppingCartDTO;
 import Online.Book.Store.shoppingCart.dto.response.ShoppingCartDTO;
 import Online.Book.Store.shoppingCart.model.ShoppingCart;
 
-import java.util.List;
+import java.util.Set;
 
 public interface ShoppingCartService {
 
@@ -15,7 +15,7 @@ public interface ShoppingCartService {
 
     void removeFromCart(CreatShoppingCartDTO request);
 
-    List<OrderLine> getAllItems(Long customerId);
+    Set<OrderLine> getAllItems(Long customerId);
 
     ShoppingCart save(ShoppingCart shoppingCart);
 

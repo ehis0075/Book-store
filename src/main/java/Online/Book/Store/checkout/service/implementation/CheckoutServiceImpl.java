@@ -4,7 +4,8 @@ import Online.Book.Store.checkout.service.CheckoutService;
 import Online.Book.Store.customer.model.Customer;
 import Online.Book.Store.customer.service.CustomerService;
 import Online.Book.Store.orderLine.model.OrderLine;
-import Online.Book.Store.payment.dto.PaymentRequestPayload;
+import Online.Book.Store.orders.dto.OrderDTO;
+import Online.Book.Store.orders.service.OrderService;
 import Online.Book.Store.payment.dto.PaymentTransactionResponseDTO;
 import Online.Book.Store.payment.dto.UpdatePaymentTransactionPayload;
 import Online.Book.Store.payment.enums.PaymentStatus;
@@ -14,8 +15,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -27,22 +30,28 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     private final CustomerService customerService;
 
+    private final OrderService orderService;
+
     private final PaymentTransactionService paymentTransactionService;
 
     @Override
-    public PaymentTransactionResponseDTO checkOut(PaymentRequestPayload request) {
-        log.info("Request to check out {}", request);
+    public PaymentTransactionResponseDTO checkOut(Long customerId) {
+        log.info("Request to check out {}", customerId);
 
         // get customer
-        Customer customer = customerService.findCustomerById(request.getCustomerId());
+        Customer customer = customerService.findCustomerById(customerId);
 
         //get order list
-        List<OrderLine> orderLineList = customer.getShoppingCart().getOrderLineList();
+        Set<OrderLine> orderLineList = customer.getShoppingCart().getOrderLineList();
 
-        // validation
+        // get total price of items
+        BigDecimal totalPrice = calculateTotalPrice(orderLineList);
+
+        // create order
+        OrderDTO orderDTO = orderService.createOrder(orderLineList.stream().toList(), customerId);
 
         // create payment trnx
-        return paymentTransactionService.createPaymentTransaction(request);
+        return paymentTransactionService.createPaymentTransaction(customerId, totalPrice, orderDTO.getId());
     }
 
     @Override
@@ -60,6 +69,19 @@ public class CheckoutServiceImpl implements CheckoutService {
             //clear shopping cart
             shoppingCartService.clearShoppingCart(customer.getShoppingCart().getId());
         }
+    }
+
+    public BigDecimal calculateTotalPrice(Set<OrderLine> orderLineList) {
+        log.info("Calculating total price for {}", orderLineList);
+
+        return orderLineList.stream()
+                .collect(Collectors.groupingBy(OrderLine::getBook,
+                        Collectors.mapping(orderLine ->
+                                        orderLine.getBook().getPrice().multiply(BigDecimal.valueOf(orderLine.getCount())),
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))))
+                .values()
+                .stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
 }

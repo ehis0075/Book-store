@@ -1,6 +1,7 @@
 package Online.Book.Store.payment.model;
 
 import Online.Book.Store.customer.model.Customer;
+import Online.Book.Store.orders.model.Orders;
 import Online.Book.Store.payment.dto.PaymentTransactionDTO;
 import Online.Book.Store.payment.enums.Channel;
 import Online.Book.Store.payment.enums.PaymentStatus;
@@ -29,6 +30,9 @@ public class PaymentTransaction {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
+
+    @ManyToOne
+    private Orders orders;
 
     @ManyToOne
     private Customer customer;

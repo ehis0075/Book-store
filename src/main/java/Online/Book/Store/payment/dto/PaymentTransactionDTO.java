@@ -1,11 +1,12 @@
 package Online.Book.Store.payment.dto;
 
-import Online.Book.Store.customer.dto.CustomerDTO;
 import Online.Book.Store.payment.enums.Channel;
 import Online.Book.Store.payment.enums.PaymentStatus;
 import Online.Book.Store.util.JsonDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -27,8 +28,6 @@ public class PaymentTransactionDTO {
     private Date transactionDate;
 
     private PaymentStatus paymentStatus;
-
-    private CustomerDTO customerDTO;
 
     private Channel paymentChannel;
 

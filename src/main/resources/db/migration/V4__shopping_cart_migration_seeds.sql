@@ -1,0 +1,6 @@
+-- INSERT INTO public.shopping_cart(id)
+-- VALUES (2);
+-- VALUES (3);
+-- VALUES (4);
+-- VALUES (5);
+-- VALUES (6);
