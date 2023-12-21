@@ -9,4 +9,6 @@ public interface AuthorService {
     AuthorDTO createAuthor(CreateAuthorPayload request);
 
     Author getAuthorById(Long id);
+
+    AuthorDTO getAuthorDTO(Author author);
 }

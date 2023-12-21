@@ -77,7 +77,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         return orderLineList.stream()
                 .collect(Collectors.groupingBy(OrderLine::getBook,
                         Collectors.mapping(orderLine ->
-                                        orderLine.getBook().getPrice().multiply(BigDecimal.valueOf(orderLine.getCount())),
+                                        orderLine.getBook().getPrice().multiply(BigDecimal.valueOf(orderLine.getQuantity())),
                                 Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))))
                 .values()
                 .stream()

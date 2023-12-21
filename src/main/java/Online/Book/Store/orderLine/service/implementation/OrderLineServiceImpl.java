@@ -25,7 +25,7 @@ public class OrderLineServiceImpl implements OrderLineService {
 
         OrderLine newOrderLine = new OrderLine();
         newOrderLine.setBook(book);
-        newOrderLine.setCount(1);
+        newOrderLine.setQuantity(1);
         orderLineList.add(newOrderLine);
 
         return orderLineRepository.save(newOrderLine);

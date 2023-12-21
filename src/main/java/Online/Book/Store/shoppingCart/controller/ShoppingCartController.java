@@ -38,7 +38,7 @@ public class ShoppingCartController {
         return generalService.prepareResponse(ResponseCodeAndMessage.SUCCESSFUL_0, "successfully removed item from cart");
     }
 
-    @PostMapping("/getCartItems/{customerId}") //
+    @GetMapping("/getCartItems/{customerId}") //
     public Response getCartItems(@PathVariable Long customerId) {
 
         Set<OrderLine> data = shoppingCartService.getAllItems(customerId);

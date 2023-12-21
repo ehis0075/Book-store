@@ -143,7 +143,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         if (existingOrderLine.isPresent()) {
             // If the book exists, increase the count by 1
-            existingOrderLine.get().setCount(existingOrderLine.get().getCount() + 1);
+            existingOrderLine.get().setQuantity(existingOrderLine.get().getQuantity() + 1);
 
             orderLineService.saveItem(existingOrderLine.get());
         } else {
@@ -163,10 +163,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         if (existingOrderLine.isPresent()) {
             // If the book exists, decrease the count by 1
             OrderLine orderLine = existingOrderLine.get();
-            int newCount = orderLine.getCount() - 1;
+            int newCount = orderLine.getQuantity() - 1;
 
             if (newCount > 0) {
-                orderLine.setCount(newCount);
+                orderLine.setQuantity(newCount);
             } else {
                 // If the count becomes zero, remove the OrderLine from the list
                 orderLineList.remove(orderLine);

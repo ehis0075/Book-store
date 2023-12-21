@@ -39,6 +39,7 @@ public class AuthorServiceImpl implements AuthorService {
                 .orElseThrow(() -> new GeneralException(ResponseCodeAndMessage.RECORD_NOT_FOUND_88.responseMessage, "No Author found with the given ID"));
     }
 
+    @Override
     public AuthorDTO getAuthorDTO(Author author) {
 
         AuthorDTO authorDTO = new AuthorDTO();

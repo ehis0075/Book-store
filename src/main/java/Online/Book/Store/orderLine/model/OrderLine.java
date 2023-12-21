@@ -20,6 +20,5 @@ public class OrderLine {   // use equal hash code here : book id will be the equ
     @ManyToOne
     private Book book;
 
-    // qty : min of 1
-    private int count;
+    private int quantity;
 }

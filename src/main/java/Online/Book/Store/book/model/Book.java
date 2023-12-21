@@ -19,12 +19,13 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String title;
 
     @Enumerated(EnumType.STRING)
     private Genre genre;
 
-    @Column(name = "isbn_code")
+    @Column(unique = true)
     private String isbnCode;
 
     @OneToOne
